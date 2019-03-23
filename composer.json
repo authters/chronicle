@@ -1,0 +1,54 @@
+{
+  "name": "authters/chronicle",
+  "description": "",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "authters",
+      "email": "authters@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2",
+    "authters/service-bus": "dev-master",
+    "authters/tracker": "dev-master",
+    "prooph/common": "^4.3",
+    "beberlei/assert": "^3.0.0",
+    "marc-mabe/php-enum": "^3.1"
+  },
+  "require-dev": {
+    "laravel/framework": "^5.7",
+    "mockery/mockery": "^1.0",
+    "nunomaduro/collision": "^2.0",
+    "phpunit/phpunit": "^7.0"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/authters/service-bus"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/authters/tracker"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Authters\\Chronicle\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "AuthtersTest\\Chronicle\\": "tests/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0-dev"
+    },
+    "laravel": {
+      "providers": []
+    }
+  }
+}

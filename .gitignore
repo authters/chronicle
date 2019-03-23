@@ -1,0 +1,9 @@
+.idea
+.vscode
+/vendor
+*.env
+/node_modules
+composer.lock
+/coverage
+/build
+.directory
