@@ -11,7 +11,7 @@ trait HasEventSourced
      */
     protected $version = 0;
 
-    protected static function reconstituteFromHistory(iterable $historyEvents): self
+    protected static function reconstituteFromHistory(\Iterator $historyEvents): self
     {
         $instance = new static();
 
@@ -20,7 +20,7 @@ trait HasEventSourced
         return $instance;
     }
 
-    protected function replay(iterable $historyEvents): void
+    protected function replay(\Iterator $historyEvents): void
     {
         foreach ($historyEvents as $pastEvent) {
             /** @var AggregateChanged $pastEvent */

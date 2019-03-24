@@ -5,8 +5,9 @@ namespace Authters\Chronicle\Aggregate;
 use Authters\Chronicle\Aggregate\Concerns\HasEventProducer;
 use Authters\Chronicle\Aggregate\Concerns\HasEventSourced;
 use Authters\Chronicle\Exceptions\RuntimeException;
+use Illuminate\Database\Eloquent\Model;
 
-abstract class AggregateRoot
+abstract class AggregateRoot extends Model
 {
     use HasEventProducer, HasEventSourced;
 
