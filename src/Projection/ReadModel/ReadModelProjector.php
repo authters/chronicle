@@ -4,8 +4,6 @@ namespace Authters\Chronicle\Projection\ReadModel;
 
 use Authters\Chronicle\Projection\ProjectorContextBuilder;
 use Authters\Chronicle\Projection\ProjectorMutable;
-use Authters\Chronicle\Projection\ProjectorOptions;
-use Authters\Chronicle\Projection\ProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector as BaseProjector;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
@@ -16,11 +14,6 @@ class ReadModelProjector implements BaseProjector
      * @var ProjectorConnector
      */
     private $connector;
-
-    /**
-     * @var ProjectorOptions
-     */
-    private $options;
 
     /**
      * @var ReadModel
@@ -53,18 +46,17 @@ class ReadModelProjector implements BaseProjector
     private $runner;
 
     public function __construct(ProjectorConnector $connector,
-                                ProjectorOptions $options,
                                 ReadModel $readModel,
                                 ReadModelProjectorContextBuilder $builder,
                                 string $name)
     {
         $this->connector = $connector;
-        $this->options = $options;
         $this->readModel = $readModel;
         $this->builder = $builder;
         $this->name = $name;
+        $this->mutable = new ProjectorMutable();
 
-        $this->runner = $this->setupRunner();
+        $this->setupRunner();
     }
 
     public function run(bool $keepRunning = true): void
@@ -102,29 +94,26 @@ class ReadModelProjector implements BaseProjector
         return $this->name;
     }
 
-    private function setupRunner(): ProjectorRunner
+    private function setupRunner(): void
     {
-        // apply context
-        ($this->builder)($this, $this->mutable->currentStreamName());
-
-        $this->mutable = new ProjectorMutable();
-
         $this->lock = new ReadModelProjectorLock(
             $this->builder,
             $this->connector->projectionProvider(),
             $this->mutable,
-            $this->options,
             $this->name,
             $this->readModel
         );
 
-        return new ReadModelProjectorRunner(
+        $this->runner = new ReadModelProjectorRunner(
             $this->connector,
             $this->builder,
             $this->lock,
             $this->mutable,
-            $this->options,
             $this->readModel
         );
+
+        // apply context
+        $result = ($this->builder)($this, $this->mutable->currentStreamName());
+        $this->mutable->setState($result);
     }
 }

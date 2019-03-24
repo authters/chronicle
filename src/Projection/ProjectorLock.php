@@ -20,10 +20,9 @@ abstract class ProjectorLock
     protected $mutable;
 
     /**
-     * @var ProjectorOptions
+     * @var ProjectorContextBuilder
      */
-    protected $options;
-
+    protected $builder;
 
     /**
      * @var string
@@ -37,12 +36,12 @@ abstract class ProjectorLock
 
     public function __construct(ProjectionProvider $projectionProvider,
                                 ProjectorMutable $mutable,
-                                ProjectorOptions $options,
+                                ProjectorContextBuilder $builder,
                                 string $name)
     {
         $this->provider = $projectionProvider;
         $this->mutable = $mutable;
-        $this->options = $options;
+        $this->builder = $builder;
         $this->name = $name;
     }
 
@@ -53,7 +52,7 @@ abstract class ProjectorLock
     {
         $now = LockTime::fromNow();
         $nowString = $now->toString();
-        $lockUntilString = $now->createLockUntil($this->options->lockTimeoutMs);
+        $lockUntilString = $now->createLockUntil($this->builder->options()->lockTimeoutMs);
 
         $this->provider->acquireLock(
             $this->name,
@@ -77,7 +76,7 @@ abstract class ProjectorLock
             return;
         }
 
-        $lockedUntil = $now->createLockUntil($this->options->lockTimeoutMs);
+        $lockedUntil = $now->createLockUntil($this->builder->options()->lockTimeoutMs);
 
         $this->provider->updateStatus($this->name, [
             'locked_until' => $lockedUntil,
@@ -108,7 +107,7 @@ abstract class ProjectorLock
 
         $this->provider->updateStatus($this->name, [
             'status' => $newStatus->getValue(),
-            'locked_until' => $now->createLockUntil($this->options->lockTimeoutMs)
+            'locked_until' => $now->createLockUntil($this->builder->options()->lockTimeoutMs)
         ]);
 
         $this->mutable->setStatus($newStatus);
@@ -174,13 +173,15 @@ abstract class ProjectorLock
      */
     public function shouldUpdateLock(DateTimeImmutable $now): bool
     {
-        if (null === $this->lastLockUpdate || 0 === $this->options->updateLockThreshold) {
+        $threshold = $this->builder->options()->updateLockThreshold;
+
+        if (null === $this->lastLockUpdate || 0 === $threshold) {
             return true;
         }
 
-        $intervalSeconds = \floor($this->options->updateLockThreshold / 1000);
+        $intervalSeconds = \floor($threshold / 1000);
         $updateLockThreshold = new \DateInterval("PT{$intervalSeconds}S");
-        $updateLockThreshold->f = ($this->options->updateLockThreshold % 1000) / 1000;
+        $updateLockThreshold->f = ($threshold % 1000) / 1000;
         $threshold = $this->lastLockUpdate->add($updateLockThreshold);
 
         return $threshold <= $now;

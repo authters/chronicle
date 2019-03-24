@@ -5,7 +5,6 @@ namespace Authters\Chronicle\Projection\ReadModel;
 use Authters\Chronicle\Projection\ProjectorContextBuilder;
 use Authters\Chronicle\Projection\ProjectorLock;
 use Authters\Chronicle\Projection\ProjectorMutable;
-use Authters\Chronicle\Projection\ProjectorOptions;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Json;
@@ -14,11 +13,6 @@ use Authters\Chronicle\Support\Projection\LockTime;
 final class ReadModelProjectorLock extends ProjectorLock
 {
     /**
-     * @var ProjectorContextBuilder
-     */
-    private $builder;
-
-    /**
      * @var ReadModel
      */
     private $readModel;
@@ -26,13 +20,11 @@ final class ReadModelProjectorLock extends ProjectorLock
     public function __construct(ProjectorContextBuilder $builder,
                                 ProjectionProvider $projectionProvider,
                                 ProjectorMutable $mutable,
-                                ProjectorOptions $options,
                                 string $name,
                                 ReadModel $readModel)
     {
-        parent::__construct($projectionProvider, $mutable, $options, $name);
+        parent::__construct($projectionProvider, $mutable, $builder,$name);
 
-        $this->builder = $builder;
         $this->readModel = $readModel;
     }
 
@@ -44,7 +36,7 @@ final class ReadModelProjectorLock extends ProjectorLock
         $this->readModel->persist();
 
         $now = LockTime::fromNow();
-        $lockUntilString = $now->createLockUntil($this->options->lockTimeoutMs);
+        $lockUntilString = $now->createLockUntil($this->builder->options()->lockTimeoutMs);
 
         $this->provider->updateStatus($this->name, [
             'position' => Json::encode($this->mutable->streamPositions()),

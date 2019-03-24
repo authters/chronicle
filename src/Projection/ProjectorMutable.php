@@ -2,7 +2,6 @@
 
 namespace Authters\Chronicle\Projection;
 
-
 use Authters\Chronicle\Support\Projection\EventCounter;
 use Authters\Chronicle\Support\Projection\StreamPositions;
 

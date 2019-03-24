@@ -37,9 +37,8 @@ class ProjectorManager implements ProjectionManager
                                               array $options = []): ReadModelProjectorFactory
     {
         return new ReadModelProjectorFactory(
-            new ReadModelProjectorContextBuilder(),
+            new ReadModelProjectorContextBuilder(new ProjectorOptions()),
             $this->connector,
-            new ProjectorOptions(),
             $readModel,
             $name
         );

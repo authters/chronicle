@@ -9,6 +9,11 @@ use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 abstract class ProjectorContextBuilder
 {
     /**
+     * @var ProjectorOptions
+     */
+    private $options;
+
+    /**
      * @var array
      */
     private $query;
@@ -27,6 +32,11 @@ abstract class ProjectorContextBuilder
      * @var MetadataMatcher
      */
     private $metadataMatcher;
+
+    public function __construct(ProjectorOptions $options)
+    {
+        $this->options = $options;
+    }
 
     public function __invoke(Projector $projector, ?string $currentStreamName): ?array
     {
@@ -51,7 +61,7 @@ abstract class ProjectorContextBuilder
             );
 
             $result = $callback();
-            if(\is_array($result)){
+            if (\is_array($result)) {
                 return $result;
             }
         }
@@ -149,6 +159,11 @@ abstract class ProjectorContextBuilder
     public function metadataMatcher(): ?MetadataMatcher
     {
         return $this->metadataMatcher;
+    }
+
+    public function options(): ProjectorOptions
+    {
+        return $this->options;
     }
 
     abstract protected function createHandlerContext(Projector $projector, ?string &$streamName): object;

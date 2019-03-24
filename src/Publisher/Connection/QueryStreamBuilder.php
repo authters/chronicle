@@ -38,7 +38,7 @@ class QueryStreamBuilder
         $this->events = new Collection();
     }
 
-    public function chunk(): Collection
+    public function chunk(): \Iterator
     {
         $this->builder->chunk($this->limit, function (Collection $events) {
             $events->each(function (\stdClass $event) {
@@ -46,7 +46,7 @@ class QueryStreamBuilder
             });
         });
 
-        return $this->events;
+        return $this->events->getIterator();
     }
 
     protected function toMessage(\stdClass $event): Message

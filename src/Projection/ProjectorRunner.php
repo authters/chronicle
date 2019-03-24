@@ -26,11 +26,6 @@ abstract class ProjectorRunner
      */
     protected $mutable;
 
-    /**
-     * @var ProjectorOptions
-     */
-    protected $options;
-
     protected function prepareStreamPositions(): void
     {
         if ($this->builder->isQueryCategories()) {

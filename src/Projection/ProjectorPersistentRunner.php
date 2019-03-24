@@ -50,7 +50,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
                 $this->handleEventCounter();
 
-                if ($this->options->triggerPcntlSignalDispatch) {
+                if ($this->builder->options()->triggerPcntlSignalDispatch) {
                     \pcntl_signal_dispatch();
                 }
 
@@ -72,7 +72,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
         $handler = $this->builder->singleHandler();
 
         foreach ($events as $key => $event) {
-            if ($this->options->triggerPcntlSignalDispatch) {
+            if ($this->builder->options()->triggerPcntlSignalDispatch) {
                 \pcntl_signal_dispatch();
             }
 
@@ -100,7 +100,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
         /* @var Message $event */
         foreach ($events as $key => $event) {
-            if ($this->options->triggerPcntlSignalDispatch) {
+            if ($this->builder->options()->triggerPcntlSignalDispatch) {
                 \pcntl_signal_dispatch();
             }
 
@@ -126,7 +126,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
     protected function resetEventCounter(): void
     {
-        if ($this->mutable->eventCounter()->isEqualsTo($this->options->persistBlockSize)) {
+        if ($this->mutable->eventCounter()->isEqualsTo($this->builder->options()->persistBlockSize)) {
             $this->lock->persist();
 
             $this->mutable->eventCounter()->reset();
@@ -164,7 +164,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
     protected function handleEventCounter(): void
     {
         if ($this->mutable->eventCounter()->isEqualsTo(0)) {
-            \usleep($this->options->sleep);
+            \usleep($this->builder->options()->sleep);
             $this->lock->updateLock();
         } else {
             $this->lock->persist();

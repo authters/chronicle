@@ -34,7 +34,6 @@ class StreamPositions
         return empty($this->streamPositions);
     }
 
-    // generator ?
     public function all(): array
     {
         return $this->streamPositions;

@@ -332,11 +332,11 @@ class ConnectionPublisher implements TransactionalPublisher
             throw QueryPublisherError::fromQueryException($exception);
         }
 
-        if (!$result || $result->isEmpty()) {
+        if (!$result || 0 === count($result)) {
             throw StreamNotFound::with($streamName);
         }
 
-        return $result->getIterator();
+        return $result;
     }
 
     protected function isTransactionDisabled(): bool
