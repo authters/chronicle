@@ -19,6 +19,11 @@ class AggregateType
         return $self;
     }
 
+    /**
+     * @param string $root
+     * @return AggregateType
+     * @throws InvalidArgumentException
+     */
     public static function fromRootClass(string $root): AggregateType
     {
         if (!\class_exists($root)) {
@@ -31,6 +36,10 @@ class AggregateType
         return $self;
     }
 
+    /**
+     * @param object $root
+     * @throws InvalidArgumentException
+     */
     public function assert(object $root): void
     {
         $aRoot = self::fromRoot($root);
