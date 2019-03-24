@@ -2,7 +2,7 @@
 
 namespace Authters\Chronicle\Projection\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorBuilder;
+use Authters\Chronicle\Projection\ProjectorContextBuilder;
 use Authters\Chronicle\Projection\ProjectorLock;
 use Authters\Chronicle\Projection\ProjectorMutable;
 use Authters\Chronicle\Projection\ProjectorOptions;
@@ -14,19 +14,25 @@ use Authters\Chronicle\Support\Projection\LockTime;
 final class ReadModelProjectorLock extends ProjectorLock
 {
     /**
+     * @var ProjectorContextBuilder
+     */
+    private $builder;
+
+    /**
      * @var ReadModel
      */
     private $readModel;
 
-    public function __construct(ProjectorBuilder $builder,
+    public function __construct(ProjectorContextBuilder $builder,
                                 ProjectionProvider $projectionProvider,
                                 ProjectorMutable $mutable,
                                 ProjectorOptions $options,
                                 string $name,
                                 ReadModel $readModel)
     {
-        parent::__construct($builder, $projectionProvider, $mutable, $options, $name);
+        parent::__construct($projectionProvider, $mutable, $options, $name);
 
+        $this->builder = $builder;
         $this->readModel = $readModel;
     }
 
@@ -40,7 +46,7 @@ final class ReadModelProjectorLock extends ProjectorLock
         $now = LockTime::fromNow();
         $lockUntilString = $now->createLockUntil($this->options->lockTimeoutMs);
 
-        $this->projectionProvider->updateStatus($this->name, [
+        $this->provider->updateStatus($this->name, [
             'position' => Json::encode($this->mutable->streamPositions()),
             'state' => Json::encode($this->mutable->state()),
             'locked_until' => $lockUntilString
@@ -49,7 +55,7 @@ final class ReadModelProjectorLock extends ProjectorLock
 
     public function delete(bool $deleteEmittedEvents): void
     {
-        $this->projectionProvider->deleteByName($this->name);
+        $this->provider->deleteByName($this->name);
 
         if ($deleteEmittedEvents) {
             $this->readModel->delete();
@@ -82,7 +88,7 @@ final class ReadModelProjectorLock extends ProjectorLock
             $this->mutable->setState($callback());
         }
 
-        $this->projectionProvider->updateStatus($this->name, [
+        $this->provider->updateStatus($this->name, [
             'position' => Json::encode($this->mutable->streamPositions()),
             'state' => $this->mutable->state(),
             'status' => $this->mutable->status()->getValue()

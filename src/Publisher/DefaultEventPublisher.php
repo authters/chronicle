@@ -4,6 +4,15 @@ namespace Authters\Chronicle\Publisher;
 
 use Authters\Chronicle\Exceptions\InvalidArgumentException;
 use Authters\Chronicle\Exceptions\StreamNotFound;
+use Authters\Chronicle\Publisher\Events\AppendToEvent;
+use Authters\Chronicle\Publisher\Events\CreateEvent;
+use Authters\Chronicle\Publisher\Events\DeleteEvent;
+use Authters\Chronicle\Publisher\Events\FetchCategoryNamesEvent;
+use Authters\Chronicle\Publisher\Events\FetchStreamNamesEvent;
+use Authters\Chronicle\Publisher\Events\HasStreamEvent;
+use Authters\Chronicle\Publisher\Events\LoadEvent;
+use Authters\Chronicle\Publisher\Events\LoadReverseEvent;
+use Authters\Chronicle\Publisher\Events\UpdateStreamMetadataEvent;
 use Authters\Chronicle\Publisher\Tracker\EventTracker;
 use Authters\Chronicle\Publisher\Tracker\PublisherActionEvent;
 use Authters\Chronicle\Stream\Stream;
@@ -33,7 +42,7 @@ class DefaultEventPublisher implements EventPublisher
     public function create(Stream $stream): void
     {
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new CreateEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new CreateEvent($this->publisher));
 
         $event->setStream($stream);
 
@@ -47,7 +56,7 @@ class DefaultEventPublisher implements EventPublisher
     public function appendTo(StreamName $streamName, \Iterator $streamEvents): void
     {
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new AppendToEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new AppendToEvent($this->publisher));
         $event->setStreamName($streamName);
         $event->setStreamEvents($streamEvents);
 
@@ -65,7 +74,7 @@ class DefaultEventPublisher implements EventPublisher
     public function delete(StreamName $streamName): void
     {
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new DeleteEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new DeleteEvent($this->publisher));
         $event->setStreamName($streamName);
 
         $this->tracker->emit($event);
@@ -78,7 +87,7 @@ class DefaultEventPublisher implements EventPublisher
     public function updateStreamMetadata(StreamName $streamName, array $newMetadata): void
     {
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new UpdateStreamMetadataEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new UpdateStreamMetadataEvent($this->publisher));
         $event->setStreamName($streamName);
         $event->setMetadata($newMetadata);
 
@@ -103,7 +112,7 @@ class DefaultEventPublisher implements EventPublisher
         }
 
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new LoadEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new LoadEvent($this->publisher));
 
         $event->setStreamName($streamName);
         $event->setCount($count);
@@ -125,7 +134,10 @@ class DefaultEventPublisher implements EventPublisher
         return $streamEvents;
     }
 
-    public function loadReverse(StreamName $streamName, int $fromNumber = null, int $count = null, MetadataMatcher $metadataMatcher = null): \Iterator
+    public function loadReverse(StreamName $streamName,
+                                int $fromNumber = null,
+                                int $count = null,
+                                MetadataMatcher $metadataMatcher = null): \Iterator
     {
         if (null !== $fromNumber && $fromNumber < 1) {
             throw new InvalidArgumentException("From number parameter must be null or greater than 0");
@@ -136,7 +148,7 @@ class DefaultEventPublisher implements EventPublisher
         }
 
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new LoadReverseEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new LoadReverseEvent($this->publisher));
 
         $event->setStreamName($streamName);
         $event->setCount($count);
@@ -161,7 +173,7 @@ class DefaultEventPublisher implements EventPublisher
     public function hasStream(StreamName $streamName): bool
     {
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new HasStreamEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new HasStreamEvent($this->publisher));
         $event->setStreamName($streamName);
 
         $this->tracker->emit($event);
@@ -175,7 +187,7 @@ class DefaultEventPublisher implements EventPublisher
                                      int $offset = 0): array
     {
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new FetchStreamNamesEventPublisher($this->publisher));
+        $event = $this->tracker->newActionEvent(new FetchStreamNamesEvent($this->publisher));
         $event->setFilter($filter);
         $event->setMetadataMatcher($metadataMatcher);
         $event->setCount($limit);
@@ -192,7 +204,7 @@ class DefaultEventPublisher implements EventPublisher
                                        int $offset = 0): array
     {
         /** @var PublisherActionEvent $event */
-        $event = $this->tracker->newActionEvent(new FetchCategoryNames($this->publisher));
+        $event = $this->tracker->newActionEvent(new FetchCategoryNamesEvent($this->publisher));
         $event->setFilter($filter);
         $event->setMetadataMatcher($metadataMatcher);
         $event->setCount($limit);

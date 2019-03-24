@@ -70,7 +70,7 @@ class ProjectorMutable
         return $this->eventCounter;
     }
 
-    public function prepareSteamPositions(iterable $names)
+    public function prepareStreamPositions(iterable $names)
     {
         $streamPositions = [];
         foreach ($names as $name) {

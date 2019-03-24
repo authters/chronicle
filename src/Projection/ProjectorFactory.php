@@ -2,68 +2,44 @@
 
 namespace Authters\Chronicle\Projection;
 
-use Authters\Chronicle\Exceptions\RuntimeException;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as BaseProjectorFactory;
 
-abstract class ProjectorFactory
+abstract class ProjectorFactory implements BaseProjectorFactory
 {
     /**
-     * @var array|null
+     * @var ProjectorContextBuilder
      */
-    protected $query;
+    protected $projectorBuilder;
+
+    public function __construct(ProjectorContextBuilder $projectorBuilder)
+    {
+        $this->projectorBuilder = $projectorBuilder;
+    }
+
+    public function init(\Closure $callback): BaseProjectorFactory
+    {
+        $this->projectorBuilder->setInitCallback($callback);
+
+        return $this;
+    }
+
+    public function fromStreams(string ...$streamNames): BaseProjectorFactory
+    {
+        $this->projectorBuilder->setStreamNames($streamNames);
+
+        return $this;
+    }
+
+    public function when(iterable $handlers): Projector
+    {
+        $this->projectorBuilder->setHandlers($handlers);
+
+        return $this->project();
+    }
 
     /**
-     * @var callable|null
+     * @return Projector
      */
-    protected $initCallback;
-
-    /**
-     * @var iterable|\Closure
-     */
-    protected $handlers;
-
-    public function init(\Closure $callback): self
-    {
-        if (null !== $this->initCallback) {
-            throw new RuntimeException('Projection already initialized');
-        }
-
-        $this->initCallback = $callback;
-
-        return $this;
-    }
-
-    public function fromStreams(string ...$streamNames): self
-    {
-        if (null !== $this->query) {
-            throw new RuntimeException('From was already called');
-        }
-
-        foreach ($streamNames as $streamName) {
-            $this->query['streams'][] = $streamName;
-        }
-
-        return $this;
-    }
-
-    public function when(iterable $handlers): self
-    {
-        if (null !== $this->handlers) {
-            throw new RuntimeException('When was already called');
-        }
-
-        $this->handlers = $handlers;
-
-        return $this;
-    }
-
-    public function whenAny(\Closure $singleHandler): self
-    {
-        if (null !== $this->handlers) {
-            throw new RuntimeException('When was already called');
-        }
-
-        $this->handlers = $singleHandler;
-
-        return $this;
-    }
+    abstract protected function project();
 }

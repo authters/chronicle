@@ -7,17 +7,12 @@ use Authters\Chronicle\Support\Json;
 use Authters\Chronicle\Support\Projection\LockTime;
 use DateTimeImmutable;
 
-class ProjectorLock
+abstract class ProjectorLock
 {
-    /**
-     * @var ProjectorBuilder
-     */
-    protected $builder;
-
     /**
      * @var ProjectionProvider
      */
-    protected $projectionProvider;
+    protected $provider;
 
     /**
      * @var ProjectorMutable
@@ -40,14 +35,12 @@ class ProjectorLock
      */
     protected $lastLockUpdate;
 
-    public function __construct(ProjectorBuilder $builder,
-                                ProjectionProvider $projectionProvider,
+    public function __construct(ProjectionProvider $projectionProvider,
                                 ProjectorMutable $mutable,
                                 ProjectorOptions $options,
                                 string $name)
     {
-        $this->builder = $builder;
-        $this->projectionProvider = $projectionProvider;
+        $this->provider = $projectionProvider;
         $this->mutable = $mutable;
         $this->options = $options;
         $this->name = $name;
@@ -62,7 +55,7 @@ class ProjectorLock
         $nowString = $now->toString();
         $lockUntilString = $now->createLockUntil($this->options->lockTimeoutMs);
 
-        $this->projectionProvider->acquireLock(
+        $this->provider->acquireLock(
             $this->name,
             ProjectionStatus::RUNNING,
             $lockUntilString,
@@ -86,7 +79,7 @@ class ProjectorLock
 
         $lockedUntil = $now->createLockUntil($this->options->lockTimeoutMs);
 
-        $this->projectionProvider->updateStatus($this->name, [
+        $this->provider->updateStatus($this->name, [
             'locked_until' => $lockedUntil,
             'position' => Json::encode($this->mutable->streamPositions())
         ]);
@@ -96,7 +89,7 @@ class ProjectorLock
 
     public function releaseLock(): void
     {
-        $this->projectionProvider->updateStatus($this->name, [
+        $this->provider->updateStatus($this->name, [
             'status' => ProjectionStatus::IDLE,
             'locked_until' => null
         ]);
@@ -113,7 +106,7 @@ class ProjectorLock
         $newStatus = ProjectionStatus::RUNNING();
         $now = LockTime::fromNow();
 
-        $this->projectionProvider->updateStatus($this->name, [
+        $this->provider->updateStatus($this->name, [
             'status' => $newStatus->getValue(),
             'locked_until' => $now->createLockUntil($this->options->lockTimeoutMs)
         ]);
@@ -124,7 +117,7 @@ class ProjectorLock
 
     public function createProjection(): void
     {
-        $this->projectionProvider->newProjection(
+        $this->provider->newProjection(
             $this->name,
             $this->mutable->status()->getValue()
         );
@@ -132,7 +125,7 @@ class ProjectorLock
 
     public function load(): void
     {
-        $result = $this->projectionProvider->findByName($this->name);
+        $result = $this->provider->findByName($this->name);
 
         $this->mutable->streamPositions()->merge(Json::decode($result->getPosition()));
 
@@ -143,9 +136,6 @@ class ProjectorLock
         }
     }
 
-    /**
-     * @throws \Exception
-     */
     public function stop(): void
     {
         $this->persist();
@@ -154,7 +144,7 @@ class ProjectorLock
 
         $newStatus = ProjectionStatus::IDLE();
 
-        $this->projectionProvider->updateStatus($this->name, [
+        $this->provider->updateStatus($this->name, [
             'status' => $newStatus->getValue()
         ]);
 
@@ -163,7 +153,7 @@ class ProjectorLock
 
     public function fetchRemoteStatus(): ProjectionStatus
     {
-        $result = $this->projectionProvider->findByName($this->name);
+        $result = $this->provider->findByName($this->name);
 
         if (!$result) {
             return ProjectionStatus::RUNNING();
@@ -174,7 +164,7 @@ class ProjectorLock
 
     public function projectionExists(): bool
     {
-        return $this->projectionProvider->projectionExists($this->name);
+        return $this->provider->projectionExists($this->name);
     }
 
     /**
@@ -195,4 +185,10 @@ class ProjectorLock
 
         return $threshold <= $now;
     }
+
+    abstract public function persist(): void;
+
+    abstract public function reset(): void;
+
+    abstract public function delete(bool $inclEvents): void;
 }

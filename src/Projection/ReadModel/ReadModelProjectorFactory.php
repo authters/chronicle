@@ -2,7 +2,7 @@
 
 namespace Authters\Chronicle\Projection\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorBuilder;
+use Authters\Chronicle\Projection\ProjectorContextBuilder;
 use Authters\Chronicle\Projection\ProjectorFactory;
 use Authters\Chronicle\Projection\ProjectorOptions;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
@@ -30,35 +30,35 @@ class ReadModelProjectorFactory extends ProjectorFactory
      */
     private $name;
 
-    public function __construct(ProjectorConnector $connector,
+    /**
+     * @var ReadModelProjectorContextBuilder
+     */
+    protected $projectorBuilder;
+
+    public function __construct(ProjectorContextBuilder $projectorBuilder,
+                                ProjectorConnector $connector,
                                 ProjectorOptions $options,
                                 ReadModel $readModel,
                                 string $name)
     {
+        parent::__construct($projectorBuilder);
+
         $this->connector = $connector;
         $this->options = $options;
         $this->readModel = $readModel;
         $this->name = $name;
     }
 
-    final public function run(bool $keepRunning = true): void
+    final public function project(): ReadModelProjector
     {
-        // factory must act a decorator
-        $builder = new ProjectorBuilder($this->query, $this->initCallback, $this->handlers);
-
-        $context = function($projector, ?string $streamName){
-            return new ReadModelHandlerContext($projector, $streamName);
-        };
-
         $projector = new ReadModelProjector(
             $this->connector,
             $this->options,
             $this->readModel,
-            $builder,
-            $context,
+            $this->projectorBuilder,
             $this->name
         );
 
-        $projector->project($keepRunning);
+        return $projector;
     }
 }

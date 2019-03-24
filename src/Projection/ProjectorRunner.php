@@ -2,43 +2,50 @@
 
 namespace Authters\Chronicle\Projection;
 
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
 
-class ProjectorRunner
+abstract class ProjectorRunner
 {
+    /**
+     * @var ProjectorConnector
+     */
+    protected $connector;
+
+    /**
+     * @var ProjectorContextBuilder
+     */
+    protected $builder;
+
     /**
      * @var ProjectorLock
      */
-    private $lock;
+    protected $lock;
 
     /**
      * @var ProjectorMutable
      */
-    private $mutable;
+    protected $mutable;
 
     /**
      * @var ProjectorOptions
      */
-    private $options;
+    protected $options;
 
-    /**
-     * @var Publisher
-     */
-    private $publisher;
-
-    public function __construct(ProjectorLock $lock,
-                                ProjectorMutable $mutable,
-                                ProjectorOptions $options,
-                                Publisher $publisher)
+    protected function prepareStreamPositions(): void
     {
-        $this->lock = $lock;
-        $this->mutable = $mutable;
-        $this->options = $options;
-        $this->publisher = $publisher;
+        if ($this->builder->isQueryCategories()) {
+            $categories = $this->builder->queryCategories();
+            $realStreamNames = $this->connector->eventStreamProvider()->findByCategories($categories);
+        } elseif ($this->builder->isQueryAll()) {
+            $realStreamNames = $this->connector->eventStreamProvider()->findAllExceptInternalStreams();
+        } else {
+            $realStreamNames = $this->builder->queryStreams();
+        }
+
+        $this->mutable->prepareStreamPositions($realStreamNames);
     }
 
-    public function run(bool $keepRunning)
-    {
+    abstract protected function handleStreamWithSingleHandler(string $streamName, \Iterator $events): void;
 
-    }
+    abstract protected function handleStreamWithHandlers(string $streamName, \Iterator $events): void;
 }

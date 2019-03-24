@@ -2,7 +2,7 @@
 
 namespace Authters\Chronicle\Projection\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorBuilder;
+use Authters\Chronicle\Projection\ProjectorContextBuilder;
 use Authters\Chronicle\Projection\ProjectorMutable;
 use Authters\Chronicle\Projection\ProjectorOptions;
 use Authters\Chronicle\Projection\ProjectorRunner;
@@ -28,14 +28,9 @@ class ReadModelProjector implements BaseProjector
     private $readModel;
 
     /**
-     * @var ProjectorBuilder
+     * @var ProjectorContextBuilder
      */
     private $builder;
-
-    /**
-     * @var callable
-     */
-    private $context;
 
     /**
      * @var string
@@ -43,30 +38,53 @@ class ReadModelProjector implements BaseProjector
     private $name;
 
     /**
-     * @var ProjectorRunner
+     * @var ProjectorMutable
+     */
+    private $mutable;
+
+    /**
+     * @var ReadModelProjectorLock
+     */
+    private $lock;
+
+    /**
+     * @var ReadModelProjectorRunner
      */
     private $runner;
 
     public function __construct(ProjectorConnector $connector,
                                 ProjectorOptions $options,
                                 ReadModel $readModel,
-                                ProjectorBuilder $builder,
-                                callable $context,
+                                ReadModelProjectorContextBuilder $builder,
                                 string $name)
     {
         $this->connector = $connector;
         $this->options = $options;
         $this->readModel = $readModel;
         $this->builder = $builder;
-        $this->context = $context;
         $this->name = $name;
 
         $this->runner = $this->setupRunner();
     }
 
-    public function project(bool $keepRunning): void
+    public function run(bool $keepRunning = true): void
     {
         $this->runner->run($keepRunning);
+    }
+
+    public function reset(): void
+    {
+        $this->lock->reset();
+    }
+
+    public function stop(): void
+    {
+        $this->lock->stop();
+    }
+
+    public function delete(bool $deleteEmittedEvents): void
+    {
+        $this->lock->delete($deleteEmittedEvents);
     }
 
     public function readModel(): ReadModel
@@ -74,23 +92,39 @@ class ReadModelProjector implements BaseProjector
         return $this->readModel;
     }
 
+    public function getState(): array
+    {
+        return $this->mutable->state();
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     private function setupRunner(): ProjectorRunner
     {
-        $mutable = new ProjectorMutable();
+        // apply context
+        ($this->builder)($this, $this->mutable->currentStreamName());
 
-        //apply context
-        $state = ($this->builder)($this->context, null);
-        $mutable->setState($state);
+        $this->mutable = new ProjectorMutable();
 
-        $lock = new ReadModelProjectorLock(
+        $this->lock = new ReadModelProjectorLock(
             $this->builder,
             $this->connector->projectionProvider(),
-            $mutable,
+            $this->mutable,
             $this->options,
             $this->name,
             $this->readModel
         );
 
-        return new ProjectorRunner($lock, $mutable, $this->options, $this->connector->publisher());
+        return new ReadModelProjectorRunner(
+            $this->connector,
+            $this->builder,
+            $this->lock,
+            $this->mutable,
+            $this->options,
+            $this->readModel
+        );
     }
 }

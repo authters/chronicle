@@ -8,6 +8,6 @@ class ProjectionNotFound extends RuntimeException
 {
     public static function with(StreamName $streamName): self
     {
-        throw new static("Projection {$streamName} not found");
+        return new static("Projection {$streamName} not found");
     }
 }
