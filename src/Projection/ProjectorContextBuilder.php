@@ -64,6 +64,8 @@ abstract class ProjectorContextBuilder
             if (\is_array($result)) {
                 return $result;
             }
+
+            $this->initCallback = $callback;
         }
 
         return null;
@@ -122,7 +124,7 @@ abstract class ProjectorContextBuilder
         return $this->handlers;
     }
 
-    public function setStreamNames(string ...$streamNames): void
+    public function setStreamNames(array $streamNames): void
     {
         if (null !== $this->query) {
             throw new RuntimeException('From was already called');

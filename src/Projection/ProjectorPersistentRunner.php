@@ -14,8 +14,26 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
      */
     public function run(bool $keepRunning = true): void
     {
-        if (!$this->keepProcessing(true, $keepRunning)) {
-            return;
+        switch ($this->lock->fetchRemoteStatus()) {
+            case ProjectionStatus::STOPPING():
+                $this->lock->load();
+                $this->lock->stop();
+
+                return;
+            case ProjectionStatus::DELETING():
+                $this->lock->delete(false);
+
+                return;
+            case ProjectionStatus::DELETING_INCL_EMITTED_EVENTS():
+                $this->lock->delete(true);
+
+                return;
+            case ProjectionStatus::RESETTING():
+                $this->lock->reset();
+                break;
+
+            default:
+                break;
         }
 
         $this->prepareExecution();
@@ -27,19 +45,21 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
             do {
                 foreach ($this->mutable->streamPositions() as $streamName => $position) {
                     try {
+
                         $streamEvents = $this->connector->publisher()->load(
                             new StreamName($streamName),
                             $position + 1,
                             null,
                             $this->builder->metadataMatcher()
                         );
+
                     } catch (StreamNotFound $e) {
                         continue;
                     }
 
-                    if($singleHandler){
-                        $this->handleStreamWithSingleHandler($streamName, $streamEvents );
-                    }else{
+                    if ($singleHandler) {
+                        $this->handleStreamWithSingleHandler($streamName, $streamEvents);
+                    } else {
                         $this->handleStreamWithHandlers($streamName, $streamEvents);
                     }
 
@@ -54,8 +74,28 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
                     \pcntl_signal_dispatch();
                 }
 
-                if ($this->keepProcessing(false, $keepRunning)) {
-                    break;
+                switch ($this->lock->fetchRemoteStatus()) {
+                    case ProjectionStatus::STOPPING():
+                        $this->lock->stop();
+
+                        break;
+                    case ProjectionStatus::DELETING():
+                        $this->lock->delete(false);
+
+                        break;
+                    case ProjectionStatus::DELETING_INCL_EMITTED_EVENTS():
+                        $this->lock->delete(false);
+
+                        break;
+                    case ProjectionStatus::RESETTING():
+                        $this->lock->reset();
+                        if ($keepRunning) {
+                            $this->lock->startAgain();
+                        }
+                        break;
+
+                    default:
+                        break;
                 }
 
                 $this->prepareStreamPositions();
@@ -104,7 +144,11 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
                 \pcntl_signal_dispatch();
             }
 
-            $this->mutable->streamPositions()->set($streamName, $event->metadata()['_position']);
+            if( $event instanceof Message){
+                $this->mutable->streamPositions()->set($streamName, $event->metadata()['_position']);
+            }else{
+                $this->mutable->streamPositions()->set($streamName, $key);
+            }
 
             if (!isset($handlers[$event->messageName()])) {
                 continue;
@@ -171,47 +215,5 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
         }
 
         $this->mutable->eventCounter()->reset();
-    }
-
-    /**
-     * @param bool $firstExecution
-     * @param bool $keepRunning
-     * @return bool
-     * @throws \Exception
-     */
-    protected function keepProcessing(bool $firstExecution, bool $keepRunning): bool
-    {
-        switch ($this->lock->fetchRemoteStatus()) {
-            case ProjectionStatus::STOPPING():
-                if ($firstExecution) {
-                    $this->lock->load();
-                }
-
-                $this->lock->stop();
-
-                return !$firstExecution;
-
-            case ProjectionStatus::DELETING():
-                $this->lock->delete(false);
-
-                return !$firstExecution;
-
-            case ProjectionStatus::DELETING_INCL_EMITTED_EVENTS():
-                $this->lock->delete(false);
-
-                return !$firstExecution;
-
-            case ProjectionStatus::RESETTING():
-                $this->lock->reset();
-
-                if (!$firstExecution && $keepRunning) {
-                    $this->lock->startAgain();
-                }
-
-                return true;
-
-            default:
-                return true;
-        }
     }
 }

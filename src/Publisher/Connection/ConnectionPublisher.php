@@ -64,7 +64,7 @@ class ConnectionPublisher implements TransactionalPublisher
                                 MessageFactory $messageFactory,
                                 PersistenceStrategy $persistenceStrategy,
                                 EventStreamProvider $eventStreamProvider,
-                                $disableTransactionHandling = false,
+                                bool $disableTransactionHandling = false,
                                 int $loadBatchSize = 10000)
     {
         $this->connection = $connection;
@@ -332,7 +332,8 @@ class ConnectionPublisher implements TransactionalPublisher
             throw QueryPublisherError::fromQueryException($exception);
         }
 
-        if (!$result || 0 === count($result)) {
+        //fixMe
+        if (!$result || 0 === iterator_count($result)) {
             throw StreamNotFound::with($streamName);
         }
 

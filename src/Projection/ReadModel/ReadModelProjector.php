@@ -96,6 +96,10 @@ class ReadModelProjector implements BaseProjector
 
     private function setupRunner(): void
     {
+        // apply context
+        $result = ($this->builder)($this, $this->mutable->currentStreamName());
+        $this->mutable->setState($result);
+
         $this->lock = new ReadModelProjectorLock(
             $this->builder,
             $this->connector->projectionProvider(),
@@ -111,9 +115,5 @@ class ReadModelProjector implements BaseProjector
             $this->mutable,
             $this->readModel
         );
-
-        // apply context
-        $result = ($this->builder)($this, $this->mutable->currentStreamName());
-        $this->mutable->setState($result);
     }
 }

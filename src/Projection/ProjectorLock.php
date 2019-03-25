@@ -80,7 +80,7 @@ abstract class ProjectorLock
 
         $this->provider->updateStatus($this->name, [
             'locked_until' => $lockedUntil,
-            'position' => Json::encode($this->mutable->streamPositions())
+            'position' => Json::encode($this->mutable->streamPositions()->all())
         ]);
 
         $this->lastLockUpdate = $now->toDate();
