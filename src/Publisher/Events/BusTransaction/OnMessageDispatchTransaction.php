@@ -33,13 +33,13 @@ class OnMessageDispatchTransaction extends AbstractSubscriber
         };
     }
 
+    public function subscribeTo(): NamedEvent
+    {
+        return new DispatchedEvent;
+    }
+
     public function priority(): int
     {
         return 1000;
-    }
-
-    public function subscribeTo(): NamedEvent
-    {
-        return new DispatchedEvent();
     }
 }

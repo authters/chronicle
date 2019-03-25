@@ -43,7 +43,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
         try {
             do {
-                foreach ($this->mutable->streamPositions() as $streamName => $position) {
+                foreach ($this->mutable->streamPositions()->all() as $streamName => $position) {
                     try {
 
                         $streamEvents = $this->connector->publisher()->load(
@@ -138,7 +138,6 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
         $handlers = $this->builder->handlers();
 
-        /* @var Message $event */
         foreach ($events as $key => $event) {
             if ($this->builder->options()->triggerPcntlSignalDispatch) {
                 \pcntl_signal_dispatch();

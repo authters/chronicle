@@ -48,7 +48,7 @@ class OnCreateEventDispatch extends AbstractSubscriber
 
     public function subscribeTo(): NamedEvent
     {
-        return new CreateEvent();
+        return new CreateEvent;
     }
 
     public function priority(): int

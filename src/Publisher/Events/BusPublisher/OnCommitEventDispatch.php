@@ -43,7 +43,7 @@ class OnCommitEventDispatch extends AbstractSubscriber
 
     public function subscribeTo(): NamedEvent
     {
-        return new CommitTransaction();
+        return new CommitTransaction;
     }
 
     public function priority(): int

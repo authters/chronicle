@@ -34,14 +34,14 @@ class OnMessageFinalizeDispatchTransaction extends AbstractSubscriber
         };
     }
 
+    public function subscribeTo(): NamedEvent
+    {
+        return new FinalizedEvent;
+    }
+
     public function priority(): int
     {
         return 1000;
-    }
-
-    public function subscribeTo(): NamedEvent
-    {
-        return new FinalizedEvent();
     }
 
     private function inTransaction(): bool

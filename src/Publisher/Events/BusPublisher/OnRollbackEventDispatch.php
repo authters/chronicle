@@ -35,7 +35,7 @@ class OnRollbackEventDispatch extends AbstractSubscriber
 
     public function subscribeTo(): NamedEvent
     {
-        return new RollbackTransaction();
+        return new RollbackTransaction;
     }
 
     public function priority(): int
