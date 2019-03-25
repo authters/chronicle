@@ -52,7 +52,7 @@ abstract class ProjectorLock
     {
         $now = LockTime::fromNow();
         $nowString = $now->toString();
-        $lockUntilString = $now->createLockUntil($this->builder->options()->lockTimeoutMs);
+        $lockUntilString = $this->createLockUntilString($now);
 
         $this->provider->acquireLock(
             $this->name,
@@ -76,7 +76,7 @@ abstract class ProjectorLock
             return;
         }
 
-        $lockedUntil = $now->createLockUntil($this->builder->options()->lockTimeoutMs);
+        $lockedUntil = $this->createLockUntilString($now);
 
         $this->provider->updateStatus($this->name, [
             'locked_until' => $lockedUntil,
@@ -107,7 +107,7 @@ abstract class ProjectorLock
 
         $this->provider->updateStatus($this->name, [
             'status' => $newStatus->getValue(),
-            'locked_until' => $now->createLockUntil($this->builder->options()->lockTimeoutMs)
+            'locked_until' => $this->createLockUntilString($now)
         ]);
 
         $this->mutable->setStatus($newStatus);
@@ -126,7 +126,9 @@ abstract class ProjectorLock
     {
         $result = $this->provider->findByName($this->name);
 
-        $this->mutable->streamPositions()->merge(Json::decode($result->getPosition()));
+        $this->mutable->streamPositions()->mergeReverse(
+            Json::decode($result->getPosition())
+        );
 
         $state = Json::decode($result->getState());
 
@@ -185,6 +187,13 @@ abstract class ProjectorLock
         $threshold = $this->lastLockUpdate->add($updateLockThreshold);
 
         return $threshold <= $now;
+    }
+
+    protected function createLockUntilString(LockTime $dateTime): string
+    {
+        return $dateTime->createLockUntil(
+            $this->builder->options()->lockTimeoutMs
+        );
     }
 
     abstract public function persist(): void;

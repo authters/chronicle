@@ -36,7 +36,7 @@ final class ReadModelProjectorLock extends ProjectorLock
         $this->readModel->persist();
 
         $now = LockTime::fromNow();
-        $lockUntilString = $now->createLockUntil($this->builder->options()->lockTimeoutMs);
+        $lockUntilString = $this->createLockUntilString($now);
 
         $this->provider->updateStatus($this->name, [
             'position' => Json::encode($this->mutable->streamPositions()->all()),

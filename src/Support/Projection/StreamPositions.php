@@ -19,6 +19,11 @@ class StreamPositions
         $this->streamPositions = array_merge($streamPositions, $this->streamPositions);
     }
 
+    public function mergeReverse(array $streamPositions): void
+    {
+        $this->streamPositions = array_merge($this->streamPositions, $streamPositions);
+    }
+
     public function set(string $streamName, int $position): void
     {
         $this->streamPositions[$streamName] = $position;
