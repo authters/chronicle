@@ -10,30 +10,30 @@ abstract class ProjectorFactory implements BaseProjectorFactory
     /**
      * @var ProjectorContext
      */
-    protected $projectorContext;
+    protected $context;
 
     public function __construct(ProjectorContext $projectorBuilder)
     {
-        $this->projectorContext = $projectorBuilder;
+        $this->context = $projectorBuilder;
     }
 
     public function init(\Closure $callback): BaseProjectorFactory
     {
-        $this->projectorContext->setInitCallback($callback);
+        $this->context->setInitCallback($callback);
 
         return $this;
     }
 
     public function fromStreams(string ...$streamNames): BaseProjectorFactory
     {
-        $this->projectorContext->setStreamNames($streamNames);
+        $this->context->setStreamNames($streamNames);
 
         return $this;
     }
 
     public function when(iterable $handlers): Projector
     {
-        $this->projectorContext->setHandlers($handlers);
+        $this->context->setHandlers($handlers);
 
         return $this->project();
     }

@@ -4,6 +4,8 @@ namespace Authters\Chronicle\Projection;
 
 use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorContext;
 use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorFactory;
+use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorLock;
+use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
@@ -36,11 +38,10 @@ class ProjectorManager implements ProjectionManager
                                               ReadModel $readModel,
                                               array $options = []): ReadModelProjectorFactory
     {
-        return new ReadModelProjectorFactory(
-            new ReadModelProjectorContext(new ProjectorOptions()),
-            $this->connector,
-            $readModel,
-            $name
-        );
+        $context = new ReadModelProjectorContext(new ProjectorOptions());
+        $lock = new ReadModelProjectorLock($context, $this->connector->projectionProvider(), $name, $readModel);
+        $runner = new ReadModelProjectorRunner($context, $this->connector, $lock, $readModel);
+
+        return new ReadModelProjectorFactory($context, $lock, $runner, $readModel, $name);
     }
 }

@@ -2,17 +2,22 @@
 
 namespace Authters\Chronicle\Projection\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorContext;
 use Authters\Chronicle\Projection\ProjectorFactory;
+use Authters\Chronicle\Projection\ProjectorLock;
+use Authters\Chronicle\Projection\ProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
-use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
 
 class ReadModelProjectorFactory extends ProjectorFactory
 {
     /**
-     * @var ProjectorConnector
+     * @var ProjectorLock
      */
-    private $connector;
+    private $lock;
+
+    /**
+     * @var ProjectorRunner
+     */
+    private $runner;
 
     /**
      * @var ReadModel
@@ -27,44 +32,24 @@ class ReadModelProjectorFactory extends ProjectorFactory
     /**
      * @var ReadModelProjectorContext
      */
-    protected $projectorContext;
+    protected $context;
 
-    public function __construct(ProjectorContext $projectorBuilder,
-                                ProjectorConnector $connector,
+    public function __construct(ReadModelProjectorContext $context,
+                                ReadModelProjectorLock $lock,
+                                ReadModelProjectorRunner $runner,
                                 ReadModel $readModel,
                                 string $name)
     {
-        parent::__construct($projectorBuilder);
+        parent::__construct($context);
 
-        $this->connector = $connector;
+        $this->lock = $lock;
+        $this->runner = $runner;
         $this->readModel = $readModel;
         $this->name = $name;
     }
 
     final public function project(): ReadModelProjector
     {
-        $lock = new ReadModelProjectorLock(
-            $this->projectorContext,
-            $this->connector->projectionProvider(),
-            $this->name,
-            $this->readModel
-        );
-
-        $runner = new ReadModelProjectorRunner(
-            $this->projectorContext,
-            $this->connector,
-            $lock,
-            $this->readModel
-        );
-
-        $projector = new ReadModelProjector(
-            $this->projectorContext,
-            $lock,
-            $runner,
-            $this->readModel,
-            $this->name
-        );
-
-        return $projector;
+        return new ReadModelProjector($this->context, $this->lock, $this->runner, $this->readModel, $this->name);
     }
 }
