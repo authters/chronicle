@@ -39,13 +39,12 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
         $this->prepareExecution();
 
         $singleHandler = $this->context->hasSingleHandler();
-        $this->mutable->stop(false);
+        $this->context->stop(false);
 
         try {
             do {
-                foreach ($this->mutable->streamPositions()->all() as $streamName => $position) {
+                foreach ($this->context->streamPositions()->all() as $streamName => $position) {
                     try {
-
                         $streamEvents = $this->connector->publisher()->load(
                             new StreamName($streamName),
                             $position + 1,
@@ -63,7 +62,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
                         $this->handleStreamWithHandlers($streamName, $streamEvents);
                     }
 
-                    if ($this->mutable->isStopped()) {
+                    if ($this->context->isStopped()) {
                         break;
                     }
                 }
@@ -99,7 +98,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
                 }
 
                 $this->prepareStreamPositions();
-            } while ($keepRunning && !$this->mutable->isStopped());
+            } while ($keepRunning && !$this->context->isStopped());
         } finally {
             $this->lock->releaseLock();
         }
@@ -107,7 +106,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
     protected function handleStreamWithSingleHandler(string $streamName, \Iterator $events): void
     {
-        $this->mutable->setStreamName($streamName);
+        $this->context->setStreamName($streamName);
 
         $handler = $this->context->singleHandler();
 
@@ -116,17 +115,17 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
                 \pcntl_signal_dispatch();
             }
 
-            $this->mutable->streamPositions()->set($streamName, $key);
+            $this->context->streamPositions()->set($streamName, $key);
 
-            $this->mutable->eventCounter()->increment();
+            $this->context->eventCounter()->increment();
 
-            $result = $handler($this->mutable->state(), $event);
+            $result = $handler($this->context->state(), $event);
 
-            $this->mutable->setState($result);
+            $this->context->setState($result);
 
             $this->resetEventCounter();
 
-            if ($this->mutable->isStopped()) {
+            if ($this->context->isStopped()) {
                 break;
             }
         }
@@ -134,7 +133,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
     protected function handleStreamWithHandlers(string $streamName, \Iterator $events): void
     {
-        $this->mutable->setStreamName($streamName);
+        $this->context->setStreamName($streamName);
 
         $handlers = $this->context->handlers();
 
@@ -144,24 +143,24 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
             }
 
             if( $event instanceof Message){
-                $this->mutable->streamPositions()->set($streamName, $event->metadata()['_position']);
+                $this->context->streamPositions()->set($streamName, $event->metadata()['_position']);
             }else{
-                $this->mutable->streamPositions()->set($streamName, $key);
+                $this->context->streamPositions()->set($streamName, $key);
             }
 
             if (!isset($handlers[$event->messageName()])) {
                 continue;
             }
 
-            $this->mutable->eventCounter()->increment();
+            $this->context->eventCounter()->increment();
 
             $handler = $handlers[$event->messageName()];
-            $result = $handler($this->mutable->state(), $event);
-            $this->mutable->setState($result);
+            $result = $handler($this->context->state(), $event);
+            $this->context->setState($result);
 
             $this->resetEventCounter();
 
-            if ($this->mutable->isStopped()) {
+            if ($this->context->isStopped()) {
                 break;
             }
         }
@@ -169,18 +168,18 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
     protected function resetEventCounter(): void
     {
-        if ($this->mutable->eventCounter()->isEqualsTo($this->context->options()->persistBlockSize)) {
+        if ($this->context->eventCounter()->isEqualsTo($this->context->options()->persistBlockSize)) {
             $this->lock->persist();
 
-            $this->mutable->eventCounter()->reset();
+            $this->context->eventCounter()->reset();
 
-            $this->mutable->setStatus(
+            $this->context->setStatus(
                 $this->lock->fetchRemoteStatus()
             );
 
-            if (!$this->mutable->status()->is(ProjectionStatus::RUNNING())
-                && !$this->mutable->status()->is(ProjectionStatus::IDLE())) {
-                $this->mutable->stop(true);
+            if (!$this->context->status()->is(ProjectionStatus::RUNNING())
+                && !$this->context->status()->is(ProjectionStatus::IDLE())) {
+                $this->context->stop(true);
             }
         }
     }
@@ -206,13 +205,13 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
      */
     protected function handleEventCounter(): void
     {
-        if ($this->mutable->eventCounter()->isEqualsTo(0)) {
+        if ($this->context->eventCounter()->isReset()) {
             \usleep($this->context->options()->sleep);
             $this->lock->updateLock();
         } else {
             $this->lock->persist();
         }
 
-        $this->mutable->eventCounter()->reset();
+        $this->context->eventCounter()->reset();
     }
 }
