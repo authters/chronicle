@@ -1,9 +1,9 @@
 <?php
 
-namespace Authters\Chronicle\Projection\ReadModel;
+namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorContext;
-use Authters\Chronicle\Projection\ProjectorLock;
+use Authters\Chronicle\Projection\Factory\ProjectorContext;
+use Authters\Chronicle\Projection\Factory\ProjectorLock;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Json;

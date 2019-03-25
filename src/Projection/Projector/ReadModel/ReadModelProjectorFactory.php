@@ -1,21 +1,19 @@
 <?php
 
-namespace Authters\Chronicle\Projection\ReadModel;
+namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
 use Authters\Chronicle\Projection\ProjectorFactory;
-use Authters\Chronicle\Projection\ProjectorLock;
-use Authters\Chronicle\Projection\ProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 
 class ReadModelProjectorFactory extends ProjectorFactory
 {
     /**
-     * @var ProjectorLock
+     * @var ReadModelProjectorLock
      */
     private $lock;
 
     /**
-     * @var ProjectorRunner
+     * @var ReadModelProjectorRunner
      */
     private $runner;
 

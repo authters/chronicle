@@ -1,6 +1,6 @@
 <?php
 
-namespace Authters\Chronicle\Projection;
+namespace Authters\Chronicle\Projection\Factory;
 
 use Authters\Chronicle\Exceptions\RuntimeException;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;

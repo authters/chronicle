@@ -2,7 +2,8 @@
 
 namespace Authters\Chronicle\Support\Contracts\Projection\Model;
 
-use Authters\Chronicle\Projection\ProjectionStatus;
+
+use Authters\Chronicle\Projection\Factory\ProjectionStatus;
 
 interface ProjectionModel
 {

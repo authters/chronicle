@@ -2,6 +2,7 @@
 
 namespace Authters\Chronicle\Projection;
 
+use Authters\Chronicle\Projection\Factory\ProjectorContext;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as BaseProjectorFactory;
 

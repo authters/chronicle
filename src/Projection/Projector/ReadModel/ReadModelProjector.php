@@ -1,6 +1,6 @@
 <?php
 
-namespace Authters\Chronicle\Projection\ReadModel;
+namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector as BaseProjector;

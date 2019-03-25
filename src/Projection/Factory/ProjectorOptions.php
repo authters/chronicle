@@ -1,6 +1,6 @@
 <?php
 
-namespace Authters\Chronicle\Projection;
+namespace Authters\Chronicle\Projection\Factory;
 
 class ProjectorOptions
 {

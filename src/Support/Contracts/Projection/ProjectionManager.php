@@ -2,7 +2,7 @@
 
 namespace Authters\Chronicle\Support\Contracts\Projection;
 
-use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorFactory;
+use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector;

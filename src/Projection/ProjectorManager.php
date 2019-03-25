@@ -2,10 +2,11 @@
 
 namespace Authters\Chronicle\Projection;
 
-use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorContext;
-use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorFactory;
-use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorLock;
-use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorRunner;
+use Authters\Chronicle\Projection\Factory\ProjectorOptions;
+use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorContext;
+use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorFactory;
+use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorLock;
+use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;

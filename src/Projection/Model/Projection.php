@@ -2,7 +2,7 @@
 
 namespace Authters\Chronicle\Projection\Model;
 
-use Authters\Chronicle\Projection\ProjectionStatus;
+use Authters\Chronicle\Projection\Factory\ProjectionStatus;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionModel;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
 use Illuminate\Database\Eloquent\Builder;
