@@ -2,9 +2,8 @@
 
 namespace Authters\Chronicle\Projection\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorContextBuilder;
+use Authters\Chronicle\Projection\ProjectorContext;
 use Authters\Chronicle\Projection\ProjectorLock;
-use Authters\Chronicle\Projection\ProjectorMutable;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Json;
@@ -17,13 +16,12 @@ final class ReadModelProjectorLock extends ProjectorLock
      */
     private $readModel;
 
-    public function __construct(ProjectorContextBuilder $builder,
+    public function __construct(ProjectorContext $builder,
                                 ProjectionProvider $projectionProvider,
-                                ProjectorMutable $mutable,
                                 string $name,
                                 ReadModel $readModel)
     {
-        parent::__construct($projectionProvider, $mutable, $builder,$name);
+        parent::__construct($projectionProvider, $builder, $name);
 
         $this->readModel = $readModel;
     }
@@ -39,8 +37,8 @@ final class ReadModelProjectorLock extends ProjectorLock
         $lockUntilString = $this->createLockUntilString($now);
 
         $this->provider->updateStatus($this->name, [
-            'position' => Json::encode($this->mutable->streamPositions()->all()),
-            'state' => Json::encode($this->mutable->state()),
+            'position' => Json::encode($this->context->streamPositions()->all()),
+            'state' => Json::encode($this->context->state()),
             'locked_until' => $lockUntilString
         ]);
     }
@@ -53,37 +51,37 @@ final class ReadModelProjectorLock extends ProjectorLock
             $this->readModel->delete();
         }
 
-        $this->mutable->stop(true);
+        $this->context->stop(true);
 
-        $this->mutable->resetState();
+        $this->context->resetState();
 
-        $callback = $this->builder->initCallback();
+        $callback = $this->context->initCallback();
 
         if (\is_callable($callback)) {
-            $this->mutable->setState($callback());
+            $this->context->setState($callback());
         }
 
-        $this->mutable->streamPositions()->reset();
+        $this->context->streamPositions()->reset();
     }
 
     public function reset(): void
     {
-        $this->mutable->streamPositions()->reset();
+        $this->context->streamPositions()->reset();
 
-        $callback = $this->builder->initCallback();
+        $callback = $this->context->initCallback();
 
         $this->readModel->reset();
 
-        $this->mutable->resetState();
+        $this->context->resetState();
 
         if (\is_callable($callback)) {
-            $this->mutable->setState($callback());
+            $this->context->setState($callback());
         }
 
         $this->provider->updateStatus($this->name, [
-            'position' => Json::encode($this->mutable->streamPositions()->all()),
-            'state' => Json::encode($this->mutable->state()),
-            'status' => $this->mutable->status()->getValue()
+            'position' => Json::encode($this->context->streamPositions()->all()),
+            'state' => Json::encode($this->context->state()),
+            'status' => $this->context->status()->getValue()
         ]);
     }
 }

@@ -2,22 +2,15 @@
 
 namespace Authters\Chronicle\Projection\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorMutable;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector as BaseProjector;
 
 class ReadModelProjector implements BaseProjector
 {
     /**
-     * @var ProjectorMutable
-     */
-    private $mutable;
-
-    /**
      * @var ReadModelProjectorLock
      */
     private $lock;
-
 
     /**
      * @var ReadModelProjectorRunner
@@ -34,13 +27,18 @@ class ReadModelProjector implements BaseProjector
      */
     private $name;
 
-    public function __construct(ProjectorMutable $mutable,
+    /**
+     * @var ReadModelProjectorContext
+     */
+    private $context;
+
+    public function __construct(ReadModelProjectorContext $context,
                                 ReadModelProjectorLock $lock,
                                 ReadModelProjectorRunner $runner,
                                 ReadModel $readModel,
                                 string $name)
     {
-        $this->mutable = $mutable;
+        $this->context = $context;
         $this->lock = $lock;
         $this->runner = $runner;
         $this->readModel = $readModel;
@@ -49,6 +47,10 @@ class ReadModelProjector implements BaseProjector
 
     public function run(bool $keepRunning = true): void
     {
+        // apply events context
+        $result = ($this->context)($this, $this->context->currentStreamName());
+        $this->context->setState($result);
+
         $this->runner->run($keepRunning);
     }
 
@@ -74,7 +76,7 @@ class ReadModelProjector implements BaseProjector
 
     public function getState(): array
     {
-        return $this->mutable->state();
+        return $this->context->state();
     }
 
     public function getName(): string

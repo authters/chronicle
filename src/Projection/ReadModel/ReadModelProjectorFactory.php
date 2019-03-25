@@ -2,9 +2,8 @@
 
 namespace Authters\Chronicle\Projection\ReadModel;
 
-use Authters\Chronicle\Projection\ProjectorContextBuilder;
+use Authters\Chronicle\Projection\ProjectorContext;
 use Authters\Chronicle\Projection\ProjectorFactory;
-use Authters\Chronicle\Projection\ProjectorMutable;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
 
@@ -26,11 +25,11 @@ class ReadModelProjectorFactory extends ProjectorFactory
     private $name;
 
     /**
-     * @var ReadModelProjectorContextBuilder
+     * @var ReadModelProjectorContext
      */
-    protected $projectorBuilder;
+    protected $projectorContext;
 
-    public function __construct(ProjectorContextBuilder $projectorBuilder,
+    public function __construct(ProjectorContext $projectorBuilder,
                                 ProjectorConnector $connector,
                                 ReadModel $readModel,
                                 string $name)
@@ -44,35 +43,27 @@ class ReadModelProjectorFactory extends ProjectorFactory
 
     final public function project(): ReadModelProjector
     {
-        $mutable = new ProjectorMutable();
-
         $lock = new ReadModelProjectorLock(
-            $this->projectorBuilder,
+            $this->projectorContext,
             $this->connector->projectionProvider(),
-            $mutable,
             $this->name,
             $this->readModel
         );
 
         $runner = new ReadModelProjectorRunner(
+            $this->projectorContext,
             $this->connector,
-            $this->projectorBuilder,
             $lock,
-            $mutable,
             $this->readModel
         );
 
         $projector = new ReadModelProjector(
-            $mutable,
+            $this->projectorContext,
             $lock,
             $runner,
             $this->readModel,
             $this->name
         );
-
-        // apply context
-        $result = ($this->projectorBuilder)($projector, $mutable->currentStreamName());
-        $mutable->setState($result);
 
         return $projector;
     }

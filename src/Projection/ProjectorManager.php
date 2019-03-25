@@ -2,7 +2,7 @@
 
 namespace Authters\Chronicle\Projection;
 
-use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorContextBuilder;
+use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorContext;
 use Authters\Chronicle\Projection\ReadModel\ReadModelProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
@@ -37,7 +37,7 @@ class ProjectorManager implements ProjectionManager
                                               array $options = []): ReadModelProjectorFactory
     {
         return new ReadModelProjectorFactory(
-            new ReadModelProjectorContextBuilder(new ProjectorOptions()),
+            new ReadModelProjectorContext(new ProjectorOptions()),
             $this->connector,
             $readModel,
             $name

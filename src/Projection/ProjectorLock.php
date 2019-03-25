@@ -15,14 +15,9 @@ abstract class ProjectorLock
     protected $provider;
 
     /**
-     * @var ProjectorMutable
+     * @var ProjectorContext
      */
-    protected $mutable;
-
-    /**
-     * @var ProjectorContextBuilder
-     */
-    protected $builder;
+    protected $context;
 
     /**
      * @var string
@@ -35,13 +30,11 @@ abstract class ProjectorLock
     protected $lastLockUpdate;
 
     public function __construct(ProjectionProvider $projectionProvider,
-                                ProjectorMutable $mutable,
-                                ProjectorContextBuilder $builder,
+                                ProjectorContext $builder,
                                 string $name)
     {
         $this->provider = $projectionProvider;
-        $this->mutable = $mutable;
-        $this->builder = $builder;
+        $this->context = $builder;
         $this->name = $name;
     }
 
@@ -61,7 +54,7 @@ abstract class ProjectorLock
             $nowString
         );
 
-        $this->mutable->setStatus(ProjectionStatus::RUNNING());
+        $this->context->setStatus(ProjectionStatus::RUNNING());
         $this->lastLockUpdate = $now->toDate();
     }
 
@@ -80,7 +73,7 @@ abstract class ProjectorLock
 
         $this->provider->updateStatus($this->name, [
             'locked_until' => $lockedUntil,
-            'position' => Json::encode($this->mutable->streamPositions()->all())
+            'position' => Json::encode($this->context->streamPositions()->all())
         ]);
 
         $this->lastLockUpdate = $now->toDate();
@@ -93,7 +86,7 @@ abstract class ProjectorLock
             'locked_until' => null
         ]);
 
-        $this->mutable->setStatus(ProjectionStatus::IDLE());
+        $this->context->setStatus(ProjectionStatus::IDLE());
     }
 
     /**
@@ -101,7 +94,7 @@ abstract class ProjectorLock
      */
     public function startAgain(): void
     {
-        $this->mutable->stop(false);
+        $this->context->stop(false);
         $newStatus = ProjectionStatus::RUNNING();
         $now = LockTime::fromNow();
 
@@ -110,7 +103,7 @@ abstract class ProjectorLock
             'locked_until' => $this->createLockUntilString($now)
         ]);
 
-        $this->mutable->setStatus($newStatus);
+        $this->context->setStatus($newStatus);
         $this->lastLockUpdate = $now->toDate();
     }
 
@@ -118,7 +111,7 @@ abstract class ProjectorLock
     {
         $this->provider->newProjection(
             $this->name,
-            $this->mutable->status()->getValue()
+            $this->context->status()->getValue()
         );
     }
 
@@ -126,14 +119,14 @@ abstract class ProjectorLock
     {
         $result = $this->provider->findByName($this->name);
 
-        $this->mutable->streamPositions()->mergeReverse(
+        $this->context->streamPositions()->mergeReverse(
             Json::decode($result->getPosition())
         );
 
         $state = Json::decode($result->getState());
 
         if (!empty($state)) {
-            $this->mutable->setState($state);
+            $this->context->setState($state);
         }
     }
 
@@ -141,7 +134,7 @@ abstract class ProjectorLock
     {
         $this->persist();
 
-        $this->mutable->stop(true);
+        $this->context->stop(true);
 
         $newStatus = ProjectionStatus::IDLE();
 
@@ -149,7 +142,7 @@ abstract class ProjectorLock
             'status' => $newStatus->getValue()
         ]);
 
-        $this->mutable->setStatus($newStatus);
+        $this->context->setStatus($newStatus);
     }
 
     public function fetchRemoteStatus(): ProjectionStatus
@@ -175,7 +168,7 @@ abstract class ProjectorLock
      */
     public function shouldUpdateLock(DateTimeImmutable $now): bool
     {
-        $threshold = $this->builder->options()->updateLockThreshold;
+        $threshold = $this->context->options()->updateLockThreshold;
 
         if (null === $this->lastLockUpdate || 0 === $threshold) {
             return true;
@@ -192,7 +185,7 @@ abstract class ProjectorLock
     protected function createLockUntilString(LockTime $dateTime): string
     {
         return $dateTime->createLockUntil(
-            $this->builder->options()->lockTimeoutMs
+            $this->context->options()->lockTimeoutMs
         );
     }
 

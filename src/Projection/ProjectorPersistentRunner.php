@@ -38,7 +38,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
         $this->prepareExecution();
 
-        $singleHandler = $this->builder->hasSingleHandler();
+        $singleHandler = $this->context->hasSingleHandler();
         $this->mutable->stop(false);
 
         try {
@@ -50,7 +50,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
                             new StreamName($streamName),
                             $position + 1,
                             null,
-                            $this->builder->metadataMatcher()
+                            $this->context->metadataMatcher()
                         );
 
                     } catch (StreamNotFound $e) {
@@ -70,7 +70,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
                 $this->handleEventCounter();
 
-                if ($this->builder->options()->triggerPcntlSignalDispatch) {
+                if ($this->context->options()->triggerPcntlSignalDispatch) {
                     \pcntl_signal_dispatch();
                 }
 
@@ -109,10 +109,10 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
     {
         $this->mutable->setStreamName($streamName);
 
-        $handler = $this->builder->singleHandler();
+        $handler = $this->context->singleHandler();
 
         foreach ($events as $key => $event) {
-            if ($this->builder->options()->triggerPcntlSignalDispatch) {
+            if ($this->context->options()->triggerPcntlSignalDispatch) {
                 \pcntl_signal_dispatch();
             }
 
@@ -136,10 +136,10 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
     {
         $this->mutable->setStreamName($streamName);
 
-        $handlers = $this->builder->handlers();
+        $handlers = $this->context->handlers();
 
         foreach ($events as $key => $event) {
-            if ($this->builder->options()->triggerPcntlSignalDispatch) {
+            if ($this->context->options()->triggerPcntlSignalDispatch) {
                 \pcntl_signal_dispatch();
             }
 
@@ -169,7 +169,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
 
     protected function resetEventCounter(): void
     {
-        if ($this->mutable->eventCounter()->isEqualsTo($this->builder->options()->persistBlockSize)) {
+        if ($this->mutable->eventCounter()->isEqualsTo($this->context->options()->persistBlockSize)) {
             $this->lock->persist();
 
             $this->mutable->eventCounter()->reset();
@@ -207,7 +207,7 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
     protected function handleEventCounter(): void
     {
         if ($this->mutable->eventCounter()->isEqualsTo(0)) {
-            \usleep($this->builder->options()->sleep);
+            \usleep($this->context->options()->sleep);
             $this->lock->updateLock();
         } else {
             $this->lock->persist();

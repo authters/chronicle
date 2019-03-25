@@ -12,32 +12,27 @@ abstract class ProjectorRunner
     protected $connector;
 
     /**
-     * @var ProjectorContextBuilder
+     * @var ProjectorContext
      */
-    protected $builder;
+    protected $context;
 
     /**
      * @var ProjectorLock
      */
     protected $lock;
 
-    /**
-     * @var ProjectorMutable
-     */
-    protected $mutable;
-
     protected function prepareStreamPositions(): void
     {
-        if ($this->builder->isQueryCategories()) {
-            $categories = $this->builder->queryCategories();
+        if ($this->context->isQueryCategories()) {
+            $categories = $this->context->queryCategories();
             $realStreamNames = $this->connector->eventStreamProvider()->findByCategories($categories);
-        } elseif ($this->builder->isQueryAll()) {
+        } elseif ($this->context->isQueryAll()) {
             $realStreamNames = $this->connector->eventStreamProvider()->findAllExceptInternalStreams();
         } else {
-            $realStreamNames = $this->builder->queryStreams();
+            $realStreamNames = $this->context->queryStreams();
         }
 
-        $this->mutable->prepareStreamPositions($realStreamNames);
+        $this->context->prepareStreamPositions($realStreamNames);
     }
 
     abstract protected function handleStreamWithSingleHandler(string $streamName, \Iterator $events): void;

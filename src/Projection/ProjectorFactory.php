@@ -8,32 +8,32 @@ use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory a
 abstract class ProjectorFactory implements BaseProjectorFactory
 {
     /**
-     * @var ProjectorContextBuilder
+     * @var ProjectorContext
      */
-    protected $projectorBuilder;
+    protected $projectorContext;
 
-    public function __construct(ProjectorContextBuilder $projectorBuilder)
+    public function __construct(ProjectorContext $projectorBuilder)
     {
-        $this->projectorBuilder = $projectorBuilder;
+        $this->projectorContext = $projectorBuilder;
     }
 
     public function init(\Closure $callback): BaseProjectorFactory
     {
-        $this->projectorBuilder->setInitCallback($callback);
+        $this->projectorContext->setInitCallback($callback);
 
         return $this;
     }
 
     public function fromStreams(string ...$streamNames): BaseProjectorFactory
     {
-        $this->projectorBuilder->setStreamNames($streamNames);
+        $this->projectorContext->setStreamNames($streamNames);
 
         return $this;
     }
 
     public function when(iterable $handlers): Projector
     {
-        $this->projectorBuilder->setHandlers($handlers);
+        $this->projectorContext->setHandlers($handlers);
 
         return $this->project();
     }
