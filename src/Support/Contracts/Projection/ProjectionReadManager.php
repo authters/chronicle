@@ -2,10 +2,11 @@
 
 namespace Authters\Chronicle\Support\Contracts\Projection;
 
-use Authters\Chronicle\Projection\ProjectionStatus;
 
 // change method names
 // change params add metadata matcher to projection names to filter regex
+use Authters\Chronicle\Projection\Factory\ProjectionStatus;
+
 interface ProjectionReadManager
 {
     public function fetchProjectionStatus(string $name): ProjectionStatus;

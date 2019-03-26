@@ -12,9 +12,9 @@ use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorLock;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjectorFactory as PersistentProjector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as QueryProjector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjectorFactory as ReadModelProjector;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
 
 class ProjectorManager implements ProjectionManager
