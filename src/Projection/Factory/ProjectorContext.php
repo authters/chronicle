@@ -80,6 +80,7 @@ abstract class ProjectorContext
         return $this->isStopped;
     }
 
+    // todo replace bloc from runner and move event stream provider here
     public function prepareStreamPositions(iterable $names)
     {
         $streamPositions = [];

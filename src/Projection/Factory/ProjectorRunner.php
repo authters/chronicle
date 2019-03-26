@@ -2,17 +2,24 @@
 
 namespace Authters\Chronicle\Projection\Factory;
 
-use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
+use Authters\Chronicle\Projection\Projector\Query\QueryProjectorContext;
+use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
+use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
 
 abstract class ProjectorRunner
 {
     /**
-     * @var ProjectorConnector
+     * @var EventStreamProvider
      */
-    protected $connector;
+    protected $eventStreamProvider;
 
     /**
-     * @var ProjectorContext|PersistentProjectorContext
+     * @var Publisher
+     */
+    protected $publisher;
+
+    /**
+     * @var ProjectorContext|PersistentProjectorContext|QueryProjectorContext
      */
     protected $context;
 
@@ -21,13 +28,25 @@ abstract class ProjectorRunner
      */
     protected $lock;
 
+    public function __construct(ProjectorContext $context,
+                                EventStreamProvider $eventStreamProvider,
+                                Publisher $publisher,
+                                PersistentProjectorLock $lock = null)
+    {
+        $this->context = $context;
+        $this->eventStreamProvider = $eventStreamProvider;
+        $this->publisher = $publisher;
+        $this->lock = $lock;
+    }
+
+    // checkMe move the bloc to lock ?
     protected function prepareStreamPositions(): void
     {
         if ($this->context->isQueryCategories()) {
             $categories = $this->context->queryCategories();
-            $realStreamNames = $this->connector->eventStreamProvider()->findByCategories($categories);
+            $realStreamNames = $this->eventStreamProvider->findByCategories($categories);
         } elseif ($this->context->isQueryAll()) {
-            $realStreamNames = $this->connector->eventStreamProvider()->findAllExceptInternalStreams();
+            $realStreamNames = $this->eventStreamProvider->findAllExceptInternalStreams();
         } else {
             $realStreamNames = $this->context->queryStreams();
         }
@@ -35,6 +54,11 @@ abstract class ProjectorRunner
         $this->context->prepareStreamPositions($realStreamNames);
     }
 
+    /**
+     * @param string $streamName
+     * @param \Iterator $events
+     * @throws \Exception
+     */
     protected function handleStreamWithSingleHandler(string $streamName, \Iterator $events): void
     {
         $this->context->setStreamName($streamName);
@@ -48,7 +72,7 @@ abstract class ProjectorRunner
 
             $this->context->streamPositions()->set($streamName, $key);
 
-            if ($this->isPersistent()) {
+            if ($this->isProjectorPersistent()) {
                 $this->context->eventCounter()->increment();
             }
 
@@ -56,7 +80,7 @@ abstract class ProjectorRunner
 
             $this->context->setState($result);
 
-            if ($this->isPersistent()) {
+            if ($this->isProjectorPersistent()) {
                 $this->resetEventCounter();
             }
 
@@ -66,6 +90,11 @@ abstract class ProjectorRunner
         }
     }
 
+    /**
+     * @param string $streamName
+     * @param \Iterator $events
+     * @throws \Exception
+     */
     protected function handleStreamWithHandlers(string $streamName, \Iterator $events): void
     {
         $this->context->setStreamName($streamName);
@@ -77,7 +106,7 @@ abstract class ProjectorRunner
                 \pcntl_signal_dispatch();
             }
 
-            if ($this->isPersistent()) {
+            if ($this->isProjectorPersistent()) {
                 $this->context->streamPositions()->set($streamName, $event->metadata()['_position']);
             } else {
                 $this->context->streamPositions()->set($streamName, $key);
@@ -87,7 +116,7 @@ abstract class ProjectorRunner
                 continue;
             }
 
-            if ($this->isPersistent()) {
+            if ($this->isProjectorPersistent()) {
                 $this->context->eventCounter()->increment();
             }
 
@@ -95,7 +124,7 @@ abstract class ProjectorRunner
             $result = $handler($this->context->state(), $event);
             $this->context->setState($result);
 
-            if ($this->isPersistent()) {
+            if ($this->isProjectorPersistent()) {
                 $this->resetEventCounter();
             }
 
@@ -110,7 +139,7 @@ abstract class ProjectorRunner
      */
     protected function prepareExecution(): void
     {
-        if (!$this->isPersistent()) {
+        if (!$this->isProjectorPersistent()) {
             return;
         }
 
@@ -125,9 +154,12 @@ abstract class ProjectorRunner
         $this->lock->load();
     }
 
+    /**
+     * @throws \Exception
+     */
     private function resetEventCounter(): void
     {
-        if (!$this->isPersistent()) {
+        if (!$this->isProjectorPersistent()) {
             return;
         }
 
@@ -147,5 +179,5 @@ abstract class ProjectorRunner
         }
     }
 
-    abstract protected function isPersistent(): bool;
+    abstract protected function isProjectorPersistent(): bool;
 }

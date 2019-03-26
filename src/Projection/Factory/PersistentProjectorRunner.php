@@ -49,7 +49,7 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
             do {
                 foreach ($this->context->streamPositions()->all() as $streamName => $position) {
                     try {
-                        $streamEvents = $this->connector->publisher()->load(
+                        $streamEvents = $this->publisher->load(
                             new StreamName($streamName),
                             $position + 1,
                             null,
@@ -108,7 +108,6 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
         }
     }
 
-
     /**
      * @throws \Exception
      */
@@ -124,7 +123,7 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
         $this->context->eventCounter()->reset();
     }
 
-    protected function isPersistent(): bool
+    protected function isProjectorPersistent(): bool
     {
         return true;
     }

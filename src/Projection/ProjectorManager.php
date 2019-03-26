@@ -16,30 +16,46 @@ use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelPersistentProject
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorContext;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorFactory;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorRunner;
+use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
+use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjectorFactory as PersistentProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as QueryProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjectorFactory as ReadModelProjector;
-use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
+use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
 
 class ProjectorManager implements ProjectionManager
 {
     /**
-     * @var ProjectorConnector
+     * @var ProjectionProvider
      */
-    private $connector;
+    private $projectionProvider;
 
-    public function __construct(ProjectorConnector $connector)
+    /**
+     * @var EventStreamProvider
+     */
+    private $eventStreamProvider;
+
+    /**
+     * @var Publisher
+     */
+    private $publisher;
+
+    public function __construct(ProjectionProvider $projectionProvider,
+                                EventStreamProvider $eventStreamProvider,
+                                Publisher $publisher)
     {
-        $this->connector = $connector;
+        $this->projectionProvider = $projectionProvider;
+        $this->eventStreamProvider = $eventStreamProvider;
+        $this->publisher = $publisher;
     }
 
     public function createQuery(): QueryProjector
     {
         $context = new QueryProjectorContext(new ProjectorOptions());
 
-        $runner = new QueryProjectorRunner($context, $this->connector);
+        $runner = new QueryProjectorRunner($context, $this->eventStreamProvider, $this->publisher);
 
         return new QueryProjectorFactory($context, $runner);
     }
@@ -49,17 +65,22 @@ class ProjectorManager implements ProjectionManager
         $context = new ProjectionProjectorContext(new ProjectorOptions());
 
         $lock = new ProjectionProjectorLock(
-            $this->connector->publisher(),
-            $this->connector->projectionProvider(),
+            $this->publisher,
+            $this->projectionProvider,
             $context,
             $name
         );
 
-        $runner = new ProjectionProjectorRunner($context, $this->connector, $lock);
+        $runner = new ProjectionProjectorRunner(
+            $context,
+            $this->eventStreamProvider,
+            $this->publisher,
+            $lock
+        );
 
         return new ProjectionProjectorFactory(
             $context,
-            $this->connector->publisher(),
+            $this->publisher,
             $lock,
             $runner,
             $name
@@ -71,15 +92,23 @@ class ProjectorManager implements ProjectionManager
                                               array $options = []): ReadModelProjector
     {
         $context = new ReadModelProjectorContext(new ProjectorOptions());
-        $lock = new ReadModelPersistentProjectorLock($context, $this->connector->projectionProvider(), $name, $readModel);
-        $runner = new ReadModelProjectorRunner($context, $this->connector, $lock, $readModel);
+
+        $lock = new ReadModelPersistentProjectorLock($context, $this->projectionProvider, $name, $readModel);
+
+        $runner = new ReadModelProjectorRunner(
+            $context,
+            $this->eventStreamProvider,
+            $this->publisher,
+            $lock,
+            $readModel
+        );
 
         return new ReadModelProjectorFactory($context, $lock, $runner, $readModel, $name);
     }
 
     public function stopProjection(string $name): void
     {
-        $result = $this->connector->projectionProvider()->updateStatus($name, ['status' => ProjectionStatus::STOPPING]);
+        $result = $this->projectionProvider->updateStatus($name, ['status' => ProjectionStatus::STOPPING]);
 
         if (0 === $result) {
             $this->assertProjectionNameExists($name);
@@ -88,7 +117,7 @@ class ProjectorManager implements ProjectionManager
 
     public function resetProjection(string $name): void
     {
-        $result = $this->connector->projectionProvider()->updateStatus($name, ['status' => ProjectionStatus::RESETTING]);
+        $result = $this->projectionProvider->updateStatus($name, ['status' => ProjectionStatus::RESETTING]);
 
         if (0 === $result) {
             $this->assertProjectionNameExists($name);
@@ -101,7 +130,7 @@ class ProjectorManager implements ProjectionManager
             ? ProjectionStatus::DELETING_INCL_EMITTED_EVENTS
             : ProjectionStatus::DELETING;
 
-        $result = $this->connector->projectionProvider()->updateStatus($name, ['status' => $status]);
+        $result = $this->projectionProvider->updateStatus($name, ['status' => $status]);
 
         if (0 === $result) {
             $this->assertProjectionNameExists($name);
@@ -110,7 +139,7 @@ class ProjectorManager implements ProjectionManager
 
     protected function assertProjectionNameExists(string $name): void
     {
-        $result = $this->connector->projectionProvider()->findByName($name);
+        $result = $this->projectionProvider->findByName($name);
 
         if (!$result) {
             throw new ProjectionNotFound("Projection name $name not found");

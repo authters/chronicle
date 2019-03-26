@@ -18,10 +18,10 @@ class ProjectionProjectorLock extends PersistentProjectorLock
 
     public function __construct(Publisher $publisher,
                                 ProjectionProvider $projectionProvider,
-                                ProjectorContext $builder,
+                                ProjectorContext $context,
                                 string $name)
     {
-        parent::__construct($projectionProvider, $builder, $name);
+        parent::__construct($projectionProvider, $context, $name);
 
         $this->publisher = $publisher;
     }

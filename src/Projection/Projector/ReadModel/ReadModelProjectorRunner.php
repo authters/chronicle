@@ -5,8 +5,9 @@ namespace Authters\Chronicle\Projection\Projector\ReadModel;
 use Authters\Chronicle\Projection\Factory\PersistentProjectorContext;
 use Authters\Chronicle\Projection\Factory\PersistentProjectorLock;
 use Authters\Chronicle\Projection\Factory\PersistentProjectorRunner;
+use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
-use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
+use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
 
 final class ReadModelProjectorRunner extends PersistentProjectorRunner
 {
@@ -16,13 +17,13 @@ final class ReadModelProjectorRunner extends PersistentProjectorRunner
     private $readModel;
 
     public function __construct(PersistentProjectorContext $context,
-                                ProjectorConnector $connector,
+                                EventStreamProvider $eventStreamProvider,
+                                Publisher $publisher,
                                 PersistentProjectorLock $lock,
                                 ReadModel $readModel)
     {
-        $this->connector = $connector;
-        $this->context = $context;
-        $this->lock = $lock;
+        parent::__construct($context, $eventStreamProvider, $publisher, $lock);
+
         $this->readModel = $readModel;
     }
 
