@@ -202,7 +202,7 @@ abstract class ProjectorContext
     public function setHandlers($handlers): void
     {
         if (null !== $this->handlers) {
-            throw new RuntimeException('Projection already initialized');
+            throw new RuntimeException('Projection handlers already set');
         }
 
         $this->handlers = $handlers;
@@ -221,7 +221,7 @@ abstract class ProjectorContext
     public function setStreamNames(array $streamNames): void
     {
         if (null !== $this->query) {
-            throw new RuntimeException('From was already called');
+            throw new RuntimeException('Projection streams already set');
         }
 
         foreach ($streamNames as $streamName) {

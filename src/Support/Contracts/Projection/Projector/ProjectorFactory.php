@@ -2,7 +2,7 @@
 
 namespace Authters\Chronicle\Support\Contracts\Projection\Projector;
 
-interface ProjectorFactory
+interface ProjectorFactory extends Projector
 {
     public function init(\Closure $callback): ProjectorFactory;
 
@@ -16,7 +16,7 @@ interface ProjectorFactory
 
     // public function fromAll(): ProjectorFactory;
 
-    public function when(array $handlers): Projector;
+    public function when(array $handlers): ProjectorFactory;
 
     //  public function whenAny(\Closure $closure): Projector;
 }

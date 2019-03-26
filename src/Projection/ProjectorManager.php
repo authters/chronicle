@@ -12,7 +12,9 @@ use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorLock;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as Factory;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
 
 class ProjectorManager implements ProjectionManager
@@ -27,7 +29,7 @@ class ProjectorManager implements ProjectionManager
         $this->connector = $connector;
     }
 
-    public function createQuery(): Factory
+    public function createQuery(): QueryProjector
     {
         $context = new QueryProjectorContext(new ProjectorOptions());
         $runner = new QueryProjectorRunner($context, $this->connector);
@@ -35,14 +37,14 @@ class ProjectorManager implements ProjectionManager
         return new QueryProjectorFactory($context, $runner);
     }
 
-    public function createProjection(string $name, array $options = []): Factory
+    public function createProjection(string $name, array $options = []): PersistentProjector
     {
         // TODO: Implement createProjection() method.
     }
 
     public function createReadModelProjection(string $name,
                                               ReadModel $readModel,
-                                              array $options = []): Factory
+                                              array $options = []): ReadModelProjector
     {
         $context = new ReadModelProjectorContext(new ProjectorOptions());
         $lock = new ReadModelProjectorLock($context, $this->connector->projectionProvider(), $name, $readModel);

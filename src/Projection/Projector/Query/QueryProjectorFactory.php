@@ -5,8 +5,13 @@ namespace Authters\Chronicle\Projection\Projector\Query;
 use Authters\Chronicle\Projection\ProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector as BaseProjector;
 
-class QueryProjectorFactory extends ProjectorFactory
+class QueryProjectorFactory extends ProjectorFactory implements BaseProjector
 {
+    /**
+     * @var QueryProjector
+     */
+    private $queryProjector;
+
     /**
      * @var QueryProjectorRunner
      */
@@ -24,8 +29,31 @@ class QueryProjectorFactory extends ProjectorFactory
         $this->runner = $runner;
     }
 
-    protected function project(): BaseProjector
+    /**
+     * @param bool $keepRunning Always false
+     * @throws \Exception
+     */
+    public function run(bool $keepRunning = false): void
     {
-        return new QueryProjector($this->context, $this->runner);
+        if (!$this->queryProjector) {
+            $this->queryProjector = new QueryProjector($this->context, $this->runner);
+        }
+
+        $this->queryProjector->run(false);
+    }
+
+    public function reset(): void
+    {
+        $this->queryProjector->reset();
+    }
+
+    public function stop(): void
+    {
+        $this->queryProjector->stop();
+    }
+
+    public function getState(): array
+    {
+        return $this->queryProjector->getState();
     }
 }

@@ -3,7 +3,6 @@
 namespace Authters\Chronicle\Projection;
 
 use Authters\Chronicle\Projection\Factory\ProjectorContext;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as BaseProjectorFactory;
 
 abstract class ProjectorFactory implements BaseProjectorFactory
@@ -32,15 +31,10 @@ abstract class ProjectorFactory implements BaseProjectorFactory
         return $this;
     }
 
-    public function when(iterable $handlers): Projector
+    public function when(iterable $handlers): BaseProjectorFactory
     {
         $this->context->setHandlers($handlers);
 
-        return $this->project();
+        return $this;
     }
-
-    /**
-     * @return Projector
-     */
-    abstract protected function project();
 }
