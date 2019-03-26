@@ -9,7 +9,7 @@ return [
                 'publisher' => \Authters\Chronicle\Publisher\Connection\ConnectionPublisher::class,
                 'persistence_strategy' => \Authters\Chronicle\Projection\Strategy\MysqlSingleStreamStrategy::class,
                 'naming_strategy' => \Authters\Chronicle\Projection\Strategy\SingleStreamNamingStrategy::class,
-                'metadataMatchers' => \Authters\Chronicle\Support\Metadata\ConnectionMetadataMatchers::class
+                'metadata_matchers' => \Authters\Chronicle\Support\Metadata\ConnectionMetadataMatchers::class
             ],
         ],
 

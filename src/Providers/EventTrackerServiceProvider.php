@@ -41,9 +41,9 @@ class EventTrackerServiceProvider extends ServiceProvider
             throw new \RuntimeException("Invalid config");
         }
 
-        $transactionalTracker = $eventPublisher['transactional_tracker'] ?? null;
+        $transactionalTracker = $eventPublisher['transactional_concrete'] ?? null;
 
-        $this->app->bind($tracker, function () use ($transactionalTracker, $tracker) {
+        $this->app->singleton($tracker, function () use ($transactionalTracker, $tracker) {
             $instance = new $transactionalTracker ?? $tracker;
 
             $this->attachEventsToTracker($instance);

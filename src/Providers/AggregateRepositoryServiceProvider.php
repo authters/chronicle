@@ -58,7 +58,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
 
     protected function determineNamingStrategy(string $driver): string
     {
-        $strategy = $this->fromConfig("publisher.connections.{$driver}.naming_strategy");
+        $strategy = $this->fromConfig("connections.publisher.{$driver}.naming_strategy");
 
         if (!is_string($strategy) || !class_exists($strategy)) {
             throw new RuntimeException("Invalid Naming strategy from Chronicle config");
@@ -69,7 +69,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
 
     protected function determineMetadataMatchers(string $driver): string
     {
-        $metadataMatchers = $this->fromConfig("publisher.connections.{$driver}.metadata_matchers");
+        $metadataMatchers = $this->fromConfig("connections.publisher.{$driver}.metadata_matchers");
 
         $concrete = $metadataMatchers;
         $alias = MetadataMatcherAggregate::class;

@@ -2,6 +2,7 @@
 
 namespace Authters\Chronicle;
 
+use Authters\Chronicle\Providers\AggregateRepositoryServiceProvider;
 use Authters\Chronicle\Providers\EventTrackerServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 
@@ -11,7 +12,8 @@ class ChronicleServiceProvider extends AggregateServiceProvider
      * @var array
      */
     protected $providers = [
-        EventTrackerServiceProvider::class
+        EventTrackerServiceProvider::class,
+        AggregateRepositoryServiceProvider::class,
     ];
 
     public function boot(): void
