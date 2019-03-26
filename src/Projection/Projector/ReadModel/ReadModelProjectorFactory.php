@@ -4,9 +4,10 @@ namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
 use Authters\Chronicle\Projection\ProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjectorFactory as BaseProjectorFactory;
 
-final class ReadModelProjectorFactory extends ProjectorFactory implements BaseProjectorFactory
+final class ReadModelProjectorFactory extends ProjectorFactory implements BaseProjectorFactory, PersistentProjector
 {
     /**
      * @var ReadModelProjector

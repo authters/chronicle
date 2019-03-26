@@ -3,10 +3,11 @@
 namespace Authters\Chronicle\Projection\Projector\Projection;
 
 use Authters\Chronicle\Projection\ProjectorFactory;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
 
-class ProjectionProjectorFactory extends ProjectorFactory implements PersistentProjectorFactory
+class ProjectionProjectorFactory extends ProjectorFactory implements PersistentProjectorFactory, PersistentProjector
 {
     /**
      * @var Publisher
