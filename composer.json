@@ -48,7 +48,9 @@
       "dev-master": "1.0-dev"
     },
     "laravel": {
-      "providers": []
+      "providers": [
+        "Authters\\Chronicle\\ChronicleServiceProvider"
+      ]
     }
   }
 }
