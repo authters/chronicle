@@ -1,6 +1,6 @@
 <?php
 
-namespace Authters\Chronicle\Support\Connection;
+namespace Authters\Chronicle\Support\Metadata;
 
 use Authters\Chronicle\Metadata\Matcher\CallableMetadataMatcher;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;

@@ -130,6 +130,9 @@ abstract class PersistentProjectorLock
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function stop(): void
     {
         $this->persist();
