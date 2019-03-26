@@ -2,18 +2,16 @@
 
 namespace Authters\Chronicle\Support\Contracts\Projection;
 
-use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory;
 
 interface ProjectionManager
 {
-    public function createQuery(): QueryProjector;
+    public function createQuery(): ProjectorFactory;
 
-    public function createProjection(string $name, array $options = []): PersistentProjector;
+    public function createProjection(string $name, array $options = []): ProjectorFactory;
 
     public function createReadModelProjection(string $name,
                                               ReadModel $readModel,
-                                              array $options = []): ReadModelProjectorFactory;
+                                              array $options = []): ProjectorFactory;
 }

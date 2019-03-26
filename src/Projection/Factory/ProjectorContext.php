@@ -5,7 +5,6 @@ namespace Authters\Chronicle\Projection\Factory;
 use Authters\Chronicle\Exceptions\RuntimeException;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
-use Authters\Chronicle\Support\Projection\EventCounter;
 use Authters\Chronicle\Support\Projection\StreamPositions;
 
 abstract class ProjectorContext
@@ -36,11 +35,6 @@ abstract class ProjectorContext
     private $metadataMatcher;
 
     /**
-     * @var EventCounter
-     */
-    protected $eventCounter;
-
-    /**
      * @var StreamPositions
      */
     protected $streamPositions;
@@ -65,19 +59,12 @@ abstract class ProjectorContext
      */
     protected $currentStreamName;
 
-    /**
-     * @var bool
-     */
-    protected $streamCreated = false;
-
     public function __construct(ProjectorOptions $options)
     {
         $this->options = $options;
 
         $this->streamPositions = new StreamPositions();
-        $this->eventCounter = new EventCounter();
         $this->status = ProjectionStatus::IDLE();
-        $this->streamCreated = false;
         $this->isStopped = false;
         $this->currentStreamName = null;
         $this->state = [];
@@ -91,11 +78,6 @@ abstract class ProjectorContext
     public function isStopped(): bool
     {
         return $this->isStopped;
-    }
-
-    public function eventCounter(): EventCounter
-    {
-        return $this->eventCounter;
     }
 
     public function prepareStreamPositions(iterable $names)

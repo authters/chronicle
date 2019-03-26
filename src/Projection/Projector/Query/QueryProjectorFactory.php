@@ -3,16 +3,29 @@
 namespace Authters\Chronicle\Projection\Projector\Query;
 
 use Authters\Chronicle\Projection\ProjectorFactory;
-use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector as BaseProjector;
 
 class QueryProjectorFactory extends ProjectorFactory
 {
+    /**
+     * @var QueryProjectorRunner
+     */
+    private $runner;
 
     /**
-     * @return Projector
+     * @var QueryProjectorContext
      */
-    protected function project()
+    protected $context;
+
+    public function __construct(QueryProjectorContext $context, QueryProjectorRunner $runner)
     {
-        // TODO: Implement project() method.
+        parent::__construct($context);
+
+        $this->runner = $runner;
+    }
+
+    protected function project(): BaseProjector
+    {
+        return new QueryProjector($this->context, $this->runner);
     }
 }

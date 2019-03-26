@@ -4,10 +4,14 @@ namespace Authters\Chronicle\Projection\Factory;
 
 use Authters\Chronicle\Exceptions\StreamNotFound;
 use Authters\Chronicle\Stream\StreamName;
-use Prooph\Common\Messaging\Message;
 
-abstract class ProjectorPersistentRunner extends ProjectorRunner
+abstract class PersistentProjectorRunner extends ProjectorRunner
 {
+    /**
+     * @var PersistentProjectorContext
+     */
+    protected $context;
+
     /**
      * @param bool $keepRunning
      * @throws \Exception
@@ -104,106 +108,11 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
         }
     }
 
-    protected function handleStreamWithSingleHandler(string $streamName, \Iterator $events): void
-    {
-        $this->context->setStreamName($streamName);
-
-        $handler = $this->context->singleHandler();
-
-        foreach ($events as $key => $event) {
-            if ($this->context->options()->triggerPcntlSignalDispatch) {
-                \pcntl_signal_dispatch();
-            }
-
-            $this->context->streamPositions()->set($streamName, $key);
-
-            $this->context->eventCounter()->increment();
-
-            $result = $handler($this->context->state(), $event);
-
-            $this->context->setState($result);
-
-            $this->resetEventCounter();
-
-            if ($this->context->isStopped()) {
-                break;
-            }
-        }
-    }
-
-    protected function handleStreamWithHandlers(string $streamName, \Iterator $events): void
-    {
-        $this->context->setStreamName($streamName);
-
-        $handlers = $this->context->handlers();
-
-        foreach ($events as $key => $event) {
-            if ($this->context->options()->triggerPcntlSignalDispatch) {
-                \pcntl_signal_dispatch();
-            }
-
-            if( $event instanceof Message){
-                $this->context->streamPositions()->set($streamName, $event->metadata()['_position']);
-            }else{
-                $this->context->streamPositions()->set($streamName, $key);
-            }
-
-            if (!isset($handlers[$event->messageName()])) {
-                continue;
-            }
-
-            $this->context->eventCounter()->increment();
-
-            $handler = $handlers[$event->messageName()];
-            $result = $handler($this->context->state(), $event);
-            $this->context->setState($result);
-
-            $this->resetEventCounter();
-
-            if ($this->context->isStopped()) {
-                break;
-            }
-        }
-    }
-
-    protected function resetEventCounter(): void
-    {
-        if ($this->context->eventCounter()->isEqualsTo($this->context->options()->persistBlockSize)) {
-            $this->lock->persist();
-
-            $this->context->eventCounter()->reset();
-
-            $this->context->setStatus(
-                $this->lock->fetchRemoteStatus()
-            );
-
-            if (!$this->context->status()->is(ProjectionStatus::RUNNING())
-                && !$this->context->status()->is(ProjectionStatus::IDLE())) {
-                $this->context->stop(true);
-            }
-        }
-    }
 
     /**
      * @throws \Exception
      */
-    protected function prepareExecution(): void
-    {
-        if (!$this->lock->projectionExists()) {
-            $this->lock->createProjection();
-        }
-
-        $this->lock->acquireLock();
-
-        $this->prepareStreamPositions();
-
-        $this->lock->load();
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function handleEventCounter(): void
+    private function handleEventCounter(): void
     {
         if ($this->context->eventCounter()->isReset()) {
             \usleep($this->context->options()->sleep);
@@ -213,5 +122,10 @@ abstract class ProjectorPersistentRunner extends ProjectorRunner
         }
 
         $this->context->eventCounter()->reset();
+    }
+
+    protected function isPersistent(): bool
+    {
+        return true;
     }
 }

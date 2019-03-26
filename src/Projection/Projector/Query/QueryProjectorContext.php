@@ -10,7 +10,7 @@ class QueryProjectorContext extends ProjectorContext
 {
     protected function createHandlerContext(Projector $projector, ?string &$streamName): object
     {
-        return new class($this, $streamName)
+        return new class($projector, $streamName)
         {
             /**
              * @var BaseProjector

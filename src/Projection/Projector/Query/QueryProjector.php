@@ -2,32 +2,64 @@
 
 namespace Authters\Chronicle\Projection\Projector\Query;
 
+use Authters\Chronicle\Exceptions\InvalidArgumentException;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector as BaseProjector;
 
 class QueryProjector implements BaseProjector
 {
+    /**
+     * @var QueryProjectorContext
+     */
+    private $context;
 
-    public function reset(): void
-    {
-        // TODO: Implement reset() method.
-    }
+    /**
+     * @var QueryProjectorRunner
+     */
+    private $runner;
 
-    public function stop(): void
+    public function __construct(QueryProjectorContext $context, QueryProjectorRunner $runner)
     {
-        // TODO: Implement stop() method.
+        $this->context = $context;
+        $this->runner = $runner;
     }
 
     /**
      * @param bool $keepRunning
      * @throws \Exception
      */
-    public function run(bool $keepRunning = true): void
+    public function run(bool $keepRunning = false): void
     {
-        // TODO: Implement run() method.
+        if ($keepRunning) {
+            throw new InvalidArgumentException("Query projection run only once");
+        }
+
+        $result = ($this->context)($this, $this->context->currentStreamName());
+        $this->context->setState($result);
+
+        $this->runner->run();
+    }
+
+    public function reset(): void
+    {
+        $this->context->streamPositions()->reset();
+
+        $callback = $this->context->initCallback();
+
+        if (\is_callable($callback)) {
+            $this->context->setState($callback());
+        }
+
+        // fix Me weird return in original Pdo EventStoreQuery
+        $this->context->resetState();
+    }
+
+    public function stop(): void
+    {
+        $this->context->stop(true);
     }
 
     public function getState(): array
     {
-        // TODO: Implement getState() method.
+        return $this->context->state();
     }
 }

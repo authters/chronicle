@@ -4,6 +4,7 @@ namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
 use Authters\Chronicle\Projection\ProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
+use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector as BaseProjector;
 
 class ReadModelProjectorFactory extends ProjectorFactory
 {
@@ -46,7 +47,7 @@ class ReadModelProjectorFactory extends ProjectorFactory
         $this->name = $name;
     }
 
-    final public function project(): ReadModelProjector
+    final public function project(): BaseProjector
     {
         return new ReadModelProjector($this->context, $this->lock, $this->runner, $this->readModel, $this->name);
     }

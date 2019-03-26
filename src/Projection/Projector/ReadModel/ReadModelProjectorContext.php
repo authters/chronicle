@@ -2,12 +2,12 @@
 
 namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
-use Authters\Chronicle\Projection\Factory\ProjectorContext;
+use Authters\Chronicle\Projection\Factory\PersistentProjectorContext;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector as BaseReadModelProjector;
 
-class ReadModelProjectorContext extends ProjectorContext
+class ReadModelProjectorContext extends PersistentProjectorContext
 {
     protected function createHandlerContext(Projector $projector, ?string &$streamName): object
     {

@@ -2,20 +2,20 @@
 
 namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
-use Authters\Chronicle\Projection\Factory\ProjectorContext;
+use Authters\Chronicle\Projection\Factory\PersistentProjectorContext;
 use Authters\Chronicle\Projection\Factory\ProjectorLock;
-use Authters\Chronicle\Projection\Factory\ProjectorPersistentRunner;
+use Authters\Chronicle\Projection\Factory\PersistentProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
 
-final class ReadModelProjectorRunner extends ProjectorPersistentRunner
+final class ReadModelProjectorRunner extends PersistentProjectorRunner
 {
     /**
      * @var ReadModel
      */
     private $readModel;
 
-    public function __construct(ProjectorContext $builder,
+    public function __construct(PersistentProjectorContext $builder,
                                 ProjectorConnector $connector,
                                 ProjectorLock $lock,
                                 ReadModel $readModel)
