@@ -2,6 +2,8 @@
 
 namespace Authters\Chronicle\Projection;
 
+use Authters\Chronicle\Exceptions\ProjectionNotFound;
+use Authters\Chronicle\Projection\Factory\ProjectionStatus;
 use Authters\Chronicle\Projection\Factory\ProjectorOptions;
 use Authters\Chronicle\Projection\Projector\Projection\ProjectionProjectorContext;
 use Authters\Chronicle\Projection\Projector\Projection\ProjectionProjectorFactory;
@@ -36,6 +38,7 @@ class ProjectorManager implements ProjectionManager
     public function createQuery(): QueryProjector
     {
         $context = new QueryProjectorContext(new ProjectorOptions());
+
         $runner = new QueryProjectorRunner($context, $this->connector);
 
         return new QueryProjectorFactory($context, $runner);
@@ -44,6 +47,7 @@ class ProjectorManager implements ProjectionManager
     public function createProjection(string $name, array $options = []): PersistentProjector
     {
         $context = new ProjectionProjectorContext(new ProjectorOptions());
+
         $lock = new ProjectionProjectorLock(
             $this->connector->publisher(),
             $this->connector->projectionProvider(),
@@ -71,5 +75,45 @@ class ProjectorManager implements ProjectionManager
         $runner = new ReadModelProjectorRunner($context, $this->connector, $lock, $readModel);
 
         return new ReadModelProjectorFactory($context, $lock, $runner, $readModel, $name);
+    }
+
+    public function stopProjection(string $name): void
+    {
+        $result = $this->connector->projectionProvider()->updateStatus($name, ['status' => ProjectionStatus::STOPPING]);
+
+        if (0 === $result) {
+            $this->assertProjectionNameExists($name);
+        }
+    }
+
+    public function resetProjection(string $name): void
+    {
+        $result = $this->connector->projectionProvider()->updateStatus($name, ['status' => ProjectionStatus::RESETTING]);
+
+        if (0 === $result) {
+            $this->assertProjectionNameExists($name);
+        }
+    }
+
+    public function deleteProjection(string $name, bool $deleteEmittedEvents): void
+    {
+        $status = $deleteEmittedEvents
+            ? ProjectionStatus::DELETING_INCL_EMITTED_EVENTS
+            : ProjectionStatus::DELETING;
+
+        $result = $this->connector->projectionProvider()->updateStatus($name, ['status' => $status]);
+
+        if (0 === $result) {
+            $this->assertProjectionNameExists($name);
+        }
+    }
+
+    protected function assertProjectionNameExists(string $name): void
+    {
+        $result = $this->connector->projectionProvider()->findByName($name);
+
+        if (!$result) {
+            throw new ProjectionNotFound("Projection name $name not found");
+        }
     }
 }

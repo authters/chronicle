@@ -2,6 +2,7 @@
 
 namespace Authters\Chronicle\Support\Contracts\Projection;
 
+use Authters\Chronicle\Exceptions\ProjectionNotFound;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectionProjector;
@@ -33,4 +34,23 @@ interface ProjectionManager
     public function createReadModelProjection(string $name,
                                               ReadModel $readModel,
                                               array $options = []): ReadModelProjectorFactory;
+
+    /**
+     * @param string $name
+     * @throws ProjectionNotFound
+     */
+    public function stopProjection(string $name): void;
+
+    /**
+     * @param string $name
+     * @throws ProjectionNotFound
+     */
+    public function resetProjection(string $name): void;
+
+    /**
+     * @param string $name
+     * @param bool $deleteEmittedEvents
+     * @throws ProjectionNotFound
+     */
+    public function deleteProjection(string $name, bool $deleteEmittedEvents): void;
 }
