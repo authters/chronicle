@@ -11,7 +11,7 @@ use Authters\Chronicle\Support\Contracts\Projection\Projector\QueryProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjectorFactory;
 
-interface ProjectionManager
+interface ProjectionManager extends ProjectionReadManager
 {
     /**
      * @return ProjectorFactory|QueryProjector

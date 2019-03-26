@@ -5,20 +5,9 @@ namespace Authters\Chronicle\Projection\Projector\Query;
 use Authters\Chronicle\Exceptions\StreamNotFound;
 use Authters\Chronicle\Projection\Factory\ProjectorRunner;
 use Authters\Chronicle\Stream\StreamName;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
 
-class QueryProjectorRunner extends ProjectorRunner
+final class QueryProjectorRunner extends ProjectorRunner
 {
-    /**
-     * @var Publisher
-     */
-    private $publisher;
-
-    /**
-     * @var QueryProjectorContext
-     */
-    protected $context;
-
     /**
      * @throws \Exception
      */

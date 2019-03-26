@@ -54,8 +54,7 @@ class ProjectionProjector implements BaseProjector
      */
     public function run(bool $keepRunning = true): void
     {
-        $result = ($this->context)($this, $this->context->currentStreamName());
-        $this->context->setState($result);
+        ($this->context)($this, $this->context->currentStreamName());
 
         $this->runner->run($keepRunning);
     }

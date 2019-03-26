@@ -15,7 +15,7 @@ final class ReadModelProjectorFactory extends ProjectorFactory implements BasePr
     private $projector;
 
     /**
-     * @var ReadModelPersistentProjectorLock
+     * @var ReadModelProjectorLock
      */
     private $lock;
 
@@ -40,7 +40,7 @@ final class ReadModelProjectorFactory extends ProjectorFactory implements BasePr
     protected $context;
 
     public function __construct(ReadModelProjectorContext $context,
-                                ReadModelPersistentProjectorLock $lock,
+                                ReadModelProjectorLock $lock,
                                 ReadModelProjectorRunner $runner,
                                 ReadModel $readModel,
                                 string $name)

@@ -7,7 +7,7 @@ use Authters\Chronicle\Projection\Factory\ProjectorContext;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 
-final class ReadModelPersistentProjectorLock extends PersistentProjectorLock
+final class ReadModelProjectorLock extends PersistentProjectorLock
 {
     /**
      * @var ReadModel

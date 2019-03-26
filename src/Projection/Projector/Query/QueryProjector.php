@@ -33,8 +33,7 @@ class QueryProjector implements BaseProjector
             throw new InvalidArgumentException("Query projection run only once");
         }
 
-        $result = ($this->context)($this, $this->context->currentStreamName());
-        $this->context->setState($result);
+        ($this->context)($this, $this->context->currentStreamName());
 
         $this->runner->run();
     }

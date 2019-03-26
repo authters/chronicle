@@ -70,6 +70,38 @@ abstract class ProjectorContext
         $this->state = [];
     }
 
+    public function __invoke(Projector $projector, ?string $currentStreamName): void
+    {
+        if ($this->hasSingleHandler()) {
+            $this->handlers = \Closure::bind(
+                $this->handlers,
+                $this->createHandlerContext($projector, $currentStreamName)
+            );
+        } else {
+            foreach ($this->handlers as $eventName => $handler) {
+                $this->handlers[$eventName] = \Closure::bind(
+                    $handler,
+                    $this->createHandlerContext($projector, $currentStreamName)
+                );
+            }
+        }
+
+        if (null !== $this->initCallback) {
+            $callback = \Closure::bind(
+                $this->initCallback,
+                $this->createHandlerContext($projector, $currentStreamName)
+            );
+
+            $result = $callback();
+
+            $this->initCallback = $callback;
+
+            if (\is_array($result)) {
+                $this->setState($result);
+            }
+        }
+    }
+
     public function stop(bool $stop): void
     {
         $this->isStopped = $stop;
@@ -133,42 +165,9 @@ abstract class ProjectorContext
         $this->currentStreamName = $streamName;
     }
 
-    public function __invoke(Projector $projector, ?string $currentStreamName): ?array
-    {
-        if ($this->hasSingleHandler()) {
-            $this->handlers = \Closure::bind(
-                $this->handlers,
-                $this->createHandlerContext($projector, $currentStreamName)
-            );
-        } else {
-            foreach ($this->handlers as $eventName => $handler) {
-                $this->handlers[$eventName] = \Closure::bind(
-                    $handler,
-                    $this->createHandlerContext($projector, $currentStreamName)
-                );
-            }
-        }
-
-        if (null !== $this->initCallback) {
-            $callback = \Closure::bind(
-                $this->initCallback,
-                $this->createHandlerContext($projector, $currentStreamName)
-            );
-
-            $result = $callback();
-            if (\is_array($result)) {
-                return $result;
-            }
-
-            $this->initCallback = $callback;
-        }
-
-        return null;
-    }
-
     public function hasSingleHandler(): bool
     {
-        return is_callable($this->handlers);
+        return \is_callable($this->handlers);
     }
 
     public function isQueryAll(): bool
@@ -219,14 +218,22 @@ abstract class ProjectorContext
         return $this->handlers;
     }
 
-    public function setStreamNames(array $streamNames): void
+    public function setFrom(string $key, array $streamNames = []): void
     {
         if (null !== $this->query) {
             throw new RuntimeException('Projection streams already set');
         }
 
-        foreach ($streamNames as $streamName) {
-            $this->query['streams'][] = $streamName;
+        if (!in_array($key, ['streams', 'categories', 'all'])) {
+            throw new RuntimeException('Item not Available');
+        }
+
+        if ('all' === $key) {
+            $this->query['all'] = true;
+        } else {
+            foreach ($streamNames as $streamName) {
+                $this->query[$key][] = $streamName;
+            }
         }
     }
 

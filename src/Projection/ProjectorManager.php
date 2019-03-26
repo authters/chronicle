@@ -12,7 +12,7 @@ use Authters\Chronicle\Projection\Projector\Projection\ProjectionProjectorRunner
 use Authters\Chronicle\Projection\Projector\Query\QueryProjectorContext;
 use Authters\Chronicle\Projection\Projector\Query\QueryProjectorFactory;
 use Authters\Chronicle\Projection\Projector\Query\QueryProjectorRunner;
-use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelPersistentProjectorLock;
+use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorLock;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorContext;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorFactory;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorRunner;
@@ -24,6 +24,7 @@ use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjecto
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as QueryProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjectorFactory as ReadModelProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Json;
 
 class ProjectorManager implements ProjectionManager
 {
@@ -93,7 +94,7 @@ class ProjectorManager implements ProjectionManager
     {
         $context = new ReadModelProjectorContext(new ProjectorOptions());
 
-        $lock = new ReadModelPersistentProjectorLock($context, $this->projectionProvider, $name, $readModel);
+        $lock = new ReadModelProjectorLock($context, $this->projectionProvider, $name, $readModel);
 
         $runner = new ReadModelProjectorRunner(
             $context,
@@ -135,6 +136,53 @@ class ProjectorManager implements ProjectionManager
         if (0 === $result) {
             $this->assertProjectionNameExists($name);
         }
+    }
+
+    public function statusOf(string $name): ProjectionStatus
+    {
+        $result = $this->projectionProvider->findByName($name);
+
+        if (!$result) {
+            throw new ProjectionNotFound("Projection name $name not found");
+        }
+
+        return $result->getStatus();
+    }
+
+    public function streamPositionsOf(string $name): array
+    {
+        $result = $this->projectionProvider->findByName($name);
+
+        if (!$result) {
+            throw new ProjectionNotFound("Projection name $name not found");
+        }
+
+        return Json::decode($result->getPosition());
+    }
+
+    public function stateOf(string $name): array
+    {
+        $result = $this->projectionProvider->findByName($name);
+
+        if (!$result) {
+            throw new ProjectionNotFound("Projection name $name not found");
+        }
+
+        return Json::decode($result->getState());
+    }
+
+    public function filterNamesOf(?string $filter, int $limit = 20, int $offset = 0): array
+    {
+        $result = $this->projectionProvider->findByNames($filter, $limit, $offset);
+
+        return $result->toArray();
+    }
+
+    public function filterRegexOf(string $regex, int $limit = 20, int $offset = 0): array
+    {
+        $result = $this->projectionProvider->findByNamesRegex($regex, $limit, $offset);
+
+        return $result->toArray();
     }
 
     protected function assertProjectionNameExists(string $name): void

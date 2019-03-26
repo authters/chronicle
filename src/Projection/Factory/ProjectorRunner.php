@@ -39,7 +39,7 @@ abstract class ProjectorRunner
         $this->lock = $lock;
     }
 
-    // checkMe move the bloc to lock ?
+    // checkMe move the bloc to context?
     protected function prepareStreamPositions(): void
     {
         if ($this->context->isQueryCategories()) {
