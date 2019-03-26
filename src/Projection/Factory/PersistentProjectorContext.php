@@ -28,4 +28,14 @@ abstract class PersistentProjectorContext extends ProjectorContext
     {
         return $this->eventCounter;
     }
+
+    public function isStreamCreated(): bool
+    {
+        return $this->streamCreated;
+    }
+
+    public function setStreamCreated(bool $streamCreated): void
+    {
+        $this->streamCreated = $streamCreated;
+    }
 }

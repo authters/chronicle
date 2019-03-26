@@ -3,7 +3,7 @@
 namespace Authters\Chronicle\Projection\Projector\ReadModel;
 
 use Authters\Chronicle\Projection\Factory\PersistentProjectorContext;
-use Authters\Chronicle\Projection\Factory\ProjectorLock;
+use Authters\Chronicle\Projection\Factory\PersistentProjectorLock;
 use Authters\Chronicle\Projection\Factory\PersistentProjectorRunner;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
 use Authters\Chronicle\Support\Contracts\Projection\ProjectorConnector;
@@ -15,13 +15,13 @@ final class ReadModelProjectorRunner extends PersistentProjectorRunner
      */
     private $readModel;
 
-    public function __construct(PersistentProjectorContext $builder,
+    public function __construct(PersistentProjectorContext $context,
                                 ProjectorConnector $connector,
-                                ProjectorLock $lock,
+                                PersistentProjectorLock $lock,
                                 ReadModel $readModel)
     {
         $this->connector = $connector;
-        $this->context = $builder;
+        $this->context = $context;
         $this->lock = $lock;
         $this->readModel = $readModel;
     }

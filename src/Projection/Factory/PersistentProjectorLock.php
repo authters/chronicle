@@ -7,7 +7,7 @@ use Authters\Chronicle\Support\Json;
 use Authters\Chronicle\Support\Projection\LockTime;
 use DateTimeImmutable;
 
-abstract class ProjectorLock
+abstract class PersistentProjectorLock
 {
     /**
      * @var ProjectionProvider
@@ -162,6 +162,59 @@ abstract class ProjectorLock
     }
 
     /**
+     * @throws \Exception
+     */
+    public function persist(): void
+    {
+        $now = LockTime::fromNow();
+        $lockUntilString = $this->createLockUntilString($now);
+
+        $this->provider->updateStatus($this->name, [
+            'position' => Json::encode($this->context->streamPositions()->all()),
+            'state' => Json::encode($this->context->state()),
+            'locked_until' => $lockUntilString
+        ]);
+    }
+
+    public function delete(bool $deleteEmittedEvents): void
+    {
+        $this->provider->deleteByName($this->name);
+
+        if ($deleteEmittedEvents) {
+            $this->deleteEmittedEvents();
+        }
+
+        $this->context->stop(true);
+
+        $this->context->resetState();
+
+        $callback = $this->context->initCallback();
+
+        if (\is_callable($callback)) {
+            $this->context->setState($callback());
+        }
+
+        $this->context->streamPositions()->reset();
+    }
+
+    public function reset(): void
+    {
+        $this->context->streamPositions()->reset();
+        $this->context->resetState();
+        $callback = $this->context->initCallback();
+
+        if (\is_callable($callback)) {
+            $this->context->setState($callback());
+        }
+
+        $this->provider->updateStatus($this->name, [
+            'position' => Json::encode($this->context->streamPositions()->all()),
+            'state' => Json::encode($this->context->state()),
+            'status' => $this->context->status()->getValue()
+        ]);
+    }
+
+    /**
      * @param DateTimeImmutable $now
      * @return bool
      * @throws \Exception
@@ -189,9 +242,5 @@ abstract class ProjectorLock
         );
     }
 
-    abstract public function persist(): void;
-
-    abstract public function reset(): void;
-
-    abstract public function delete(bool $inclEvents): void;
+    abstract protected function deleteEmittedEvents(): void;
 }

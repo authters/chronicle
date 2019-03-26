@@ -8,7 +8,7 @@ use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector
 class ReadModelProjector implements BaseProjector
 {
     /**
-     * @var ReadModelProjectorLock
+     * @var ReadModelPersistentProjectorLock
      */
     private $lock;
 
@@ -33,7 +33,7 @@ class ReadModelProjector implements BaseProjector
     private $context;
 
     public function __construct(ReadModelProjectorContext $context,
-                                ReadModelProjectorLock $lock,
+                                ReadModelPersistentProjectorLock $lock,
                                 ReadModelProjectorRunner $runner,
                                 ReadModel $readModel,
                                 string $name)
@@ -47,7 +47,6 @@ class ReadModelProjector implements BaseProjector
 
     public function run(bool $keepRunning = true): void
     {
-        // apply events context
         $result = ($this->context)($this, $this->context->currentStreamName());
         $this->context->setState($result);
 

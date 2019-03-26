@@ -14,7 +14,7 @@ final class ReadModelProjectorFactory extends ProjectorFactory implements BasePr
     private $projector;
 
     /**
-     * @var ReadModelProjectorLock
+     * @var ReadModelPersistentProjectorLock
      */
     private $lock;
 
@@ -39,7 +39,7 @@ final class ReadModelProjectorFactory extends ProjectorFactory implements BasePr
     protected $context;
 
     public function __construct(ReadModelProjectorContext $context,
-                                ReadModelProjectorLock $lock,
+                                ReadModelPersistentProjectorLock $lock,
                                 ReadModelProjectorRunner $runner,
                                 ReadModel $readModel,
                                 string $name)
@@ -52,14 +52,16 @@ final class ReadModelProjectorFactory extends ProjectorFactory implements BasePr
         $this->name = $name;
     }
 
-    /**
-     * @param bool $keepRunning
-     * @throws \Exception
-     */
     public function run(bool $keepRunning = true): void
     {
         if (!$this->projector) {
-            $this->projector = $this->newProjectorInstance();
+            $this->projector = new ReadModelProjector(
+                $this->context,
+                $this->lock,
+                $this->runner,
+                $this->readModel,
+                $this->name
+            );
         }
 
         $this->projector->run($keepRunning);
@@ -88,21 +90,5 @@ final class ReadModelProjectorFactory extends ProjectorFactory implements BasePr
     public function getState(): array
     {
         return $this->projector->getState();
-    }
-
-    public function readModel(): ReadModel
-    {
-        return $this->readModel;
-    }
-
-    private function newProjectorInstance(): ReadModelProjector
-    {
-        return new ReadModelProjector(
-            $this->context,
-            $this->lock,
-            $this->runner,
-            $this->readModel,
-            $this->name
-        );
     }
 }

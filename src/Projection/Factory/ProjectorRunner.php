@@ -17,7 +17,7 @@ abstract class ProjectorRunner
     protected $context;
 
     /**
-     * @var ProjectorLock|null
+     * @var PersistentProjectorLock|null
      */
     protected $lock;
 
@@ -104,7 +104,6 @@ abstract class ProjectorRunner
             }
         }
     }
-
 
     /**
      * @throws \Exception
