@@ -8,11 +8,6 @@ use Authters\Chronicle\Support\Contracts\Projection\Strategy\StreamNamingStrateg
 class SingleStreamNamingStrategy implements StreamNamingStrategy
 {
     /**
-     * @var bool
-     */
-    private $oneStreamPerAggregate = false;
-
-    /**
      * @var StreamName
      */
     private $streamName;
@@ -33,7 +28,7 @@ class SingleStreamNamingStrategy implements StreamNamingStrategy
 
     public function isOneStreamPerAggregate(): bool
     {
-        return $this->oneStreamPerAggregate;
+        return false;
     }
 
     public function streamName(): ?StreamName

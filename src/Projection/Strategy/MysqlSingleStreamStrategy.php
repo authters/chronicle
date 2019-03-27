@@ -62,7 +62,6 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
         ];
     }
 
-    // fixMe get rid of collection
     public function prepareData(\Iterator $streamEvents): array
     {
         $eventCollection = new Collection($streamEvents);
@@ -79,7 +78,7 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
                 'message_name' => $data['message_name'],
                 'payload' => Json::encode($data['payload']),
                 'metadata' => Json::encode($data['metadata']),
-                'created_at' => $data['created_at']->format('Y-m-d\TH:i:s.u')
+                'created_at' => $this->formatDateTime($data['created_at'])
             ]);
         })->toArray();
     }
@@ -92,5 +91,10 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
     public function indexName(): string
     {
         return 'ix_query_aggregate';
+    }
+
+    protected function formatDateTime(\DateTimeImmutable $createdAt): string
+    {
+        return $createdAt->format('Y-m-d\TH:i:s.u');
     }
 }

@@ -18,26 +18,8 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
      */
     public function run(bool $keepRunning = true): void
     {
-        switch ($this->lock->fetchRemoteStatus()) {
-            case ProjectionStatus::STOPPING():
-                $this->lock->load();
-                $this->lock->stop();
-
-                return;
-            case ProjectionStatus::DELETING():
-                $this->lock->delete(false);
-
-                return;
-            case ProjectionStatus::DELETING_INCL_EMITTED_EVENTS():
-                $this->lock->delete(true);
-
-                return;
-            case ProjectionStatus::RESETTING():
-                $this->lock->reset();
-                break;
-
-            default:
-                break;
+        if ($this->stopRunnerProcessing(true, $keepRunning)) {
+            return;
         }
 
         $this->prepareExecution();
@@ -55,16 +37,13 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
                             null,
                             $this->context->metadataMatcher()
                         );
-
                     } catch (StreamNotFound $e) {
                         continue;
                     }
 
-                    if ($singleHandler) {
-                        $this->handleStreamWithSingleHandler($streamName, $streamEvents);
-                    } else {
-                        $this->handleStreamWithHandlers($streamName, $streamEvents);
-                    }
+                    $singleHandler
+                        ? $this->handleStreamWithSingleHandler($streamName, $streamEvents)
+                        : $this->handleStreamWithHandlers($streamName, $streamEvents);
 
                     if ($this->context->isStopped()) {
                         break;
@@ -77,34 +56,50 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
                     \pcntl_signal_dispatch();
                 }
 
-                switch ($this->lock->fetchRemoteStatus()) {
-                    case ProjectionStatus::STOPPING():
-                        $this->lock->stop();
-
-                        break;
-                    case ProjectionStatus::DELETING():
-                        $this->lock->delete(false);
-
-                        break;
-                    case ProjectionStatus::DELETING_INCL_EMITTED_EVENTS():
-                        $this->lock->delete(false);
-
-                        break;
-                    case ProjectionStatus::RESETTING():
-                        $this->lock->reset();
-                        if ($keepRunning) {
-                            $this->lock->startAgain();
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
+                $this->stopRunnerProcessing(false, $keepRunning);
 
                 $this->prepareStreamPositions();
             } while ($keepRunning && !$this->context->isStopped());
         } finally {
             $this->lock->releaseLock();
+        }
+    }
+
+    /**
+     * @param bool $firstExecution
+     * @param bool $keepRunning
+     * @return bool
+     * @throws \Exception
+     */
+    private function stopRunnerProcessing(bool $firstExecution, bool $keepRunning): bool
+    {
+        switch ($this->lock->fetchRemoteStatus()) {
+            case ProjectionStatus::STOPPING():
+                if ($firstExecution) {
+                    $this->lock->load();
+                }
+
+                $this->lock->stop();
+
+                return $firstExecution;
+            case ProjectionStatus::DELETING():
+                $this->lock->delete(false);
+
+                return $firstExecution;
+            case ProjectionStatus::DELETING_INCL_EMITTED_EVENTS():
+                $this->lock->delete(true);
+
+                return $firstExecution;
+            case ProjectionStatus::RESETTING():
+                $this->lock->reset();
+
+                if (!$firstExecution && $keepRunning) {
+                    $this->lock->startAgain();
+                }
+
+                return false;
+            default:
+                return false;
         }
     }
 

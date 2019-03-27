@@ -42,7 +42,7 @@ abstract class ProjectorRunner
     // checkMe move the bloc to context?
     protected function prepareStreamPositions(): void
     {
-        // fixMe probably nno ned for colelction and return pluck real stream name array
+        // fixMe no need for colelction and return pluck real stream name array
         if ($this->context->isQueryCategories()) {
             $categories = $this->context->queryCategories();
             $realStreamNames = $this->eventStreamProvider

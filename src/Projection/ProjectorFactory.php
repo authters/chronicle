@@ -62,7 +62,6 @@ abstract class ProjectorFactory implements Factory
         return $this;
     }
 
-
     public function whenAny(\Closure $callback): Factory
     {
         $this->context->setHandlers($callback);
