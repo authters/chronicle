@@ -4,6 +4,7 @@ namespace Authters\Chronicle;
 
 use Authters\Chronicle\Providers\AggregateRepositoryServiceProvider;
 use Authters\Chronicle\Providers\EventTrackerServiceProvider;
+use Authters\Chronicle\Providers\PublisherServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 
 class ChronicleServiceProvider extends AggregateServiceProvider
@@ -14,6 +15,7 @@ class ChronicleServiceProvider extends AggregateServiceProvider
     protected $providers = [
         EventTrackerServiceProvider::class,
         AggregateRepositoryServiceProvider::class,
+        PublisherServiceProvider::class,
     ];
 
     public function boot(): void
@@ -27,8 +29,8 @@ class ChronicleServiceProvider extends AggregateServiceProvider
             'config'
         );
 
-        // load conditionally from connection config
-        $driver = 'mysql';
+        // fixMe
+        $driver = config('chronicle.publisher.default');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/' . $driver);
     }
 

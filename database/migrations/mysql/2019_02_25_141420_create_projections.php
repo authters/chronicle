@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateProjections extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('projections', function (Blueprint $table) {
             $table->bigInteger('no', true);
@@ -19,7 +19,7 @@ class CreateProjections extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('projections');
     }

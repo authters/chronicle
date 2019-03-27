@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     'connections' => [
 
         'publisher' => [
@@ -25,7 +26,6 @@ return [
         'aggregate_repositories' => [
 
             'service_key' => [
-                //'connections' => 'mysql',
                 'concrete' => '', // or [abstract,concrete]
                 'type' => '',
                 'translator' => '',
@@ -37,6 +37,8 @@ return [
     ],
 
     'publisher' => [
+
+        'default' => 'mysql',
 
         'use_transaction' => true,
 
@@ -57,6 +59,18 @@ return [
         'tracker' => [
             'concrete' => \Authters\Chronicle\Publisher\Tracker\EventTracker::class,
             'transactional_concrete' => \Authters\Chronicle\Publisher\Tracker\TransactionalEventTracker::class
+        ]
+    ],
+
+    'projection' => [
+
+        'only_for_console' => false,
+
+        'manager' => \Authters\Chronicle\Projection\ProjectorManager::class,
+
+        'commands' => [
+            \Authters\Chronicle\Support\Console\CreateEventStreamsCommand::class,
+            \Authters\Chronicle\Support\Console\ProjectorFinderCommand::class
         ]
     ]
 ];
