@@ -44,16 +44,17 @@ class PublisherServiceProvider extends ServiceProvider
     {
         $config = $this->fromConfig('publisher');
 
-        // projection provider binding for proj manager
+        // move projection provider binding to projection manager
         // need a tracker service id, alias or contract for event tracker
         // need logic for connection used
         // need logic for transaction
+        // message factory could already be bound in ioc by service bus
 
         [$projectionProvider, $eventStreamProvider] = $this->registerPublisherProviders($config['providers']);
         $decorator = $this->determinePublisherDecorator($config['decorator']);
         $messageFactory = $this->determineMessageFactory($config['message_factory']);
         $batchSize = $config['batch_size'] ?? 10000;
-        $disableTransactionHandling = $config['use_transaction'];
+        $disableTransactionHandling = !$config['use_transaction'];
 
         /** @var Publisher $publisher */
         $publisherInstance = new $publisher(
@@ -101,10 +102,9 @@ class PublisherServiceProvider extends ServiceProvider
         return [ProjectionProvider::class, EventStreamProvider::class];
     }
 
-    protected function determineMessageFactory(array $config): string
+    protected function determineMessageFactory(string $messageFactory = null): string
     {
-        $messageFactory = $config['message_factory'] ?? null;
-        if (!$messageFactory) {
+        if (!$messageFactory || !class_exists($messageFactory)) {
             throw new RuntimeException("Invalid message factory service from chronicle config");
         }
 

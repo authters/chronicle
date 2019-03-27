@@ -24,8 +24,8 @@ class ProjectorServiceProvider extends ServiceProvider
         // fixMe projection provider is bound in publisher SP
         $this->app->bind(ProjectionManager::class, $projectorManager);
 
-        $projectionCommands = $config['projectionCommands'];
-
-        $this->commands($projectionCommands);
+        if($projectionCommands = $config['commands']){
+            $this->commands($projectionCommands);
+        }
     }
 }

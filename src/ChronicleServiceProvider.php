@@ -4,6 +4,7 @@ namespace Authters\Chronicle;
 
 use Authters\Chronicle\Providers\AggregateRepositoryServiceProvider;
 use Authters\Chronicle\Providers\EventTrackerServiceProvider;
+use Authters\Chronicle\Providers\ProjectorServiceProvider;
 use Authters\Chronicle\Providers\PublisherServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 
@@ -16,6 +17,7 @@ class ChronicleServiceProvider extends AggregateServiceProvider
         EventTrackerServiceProvider::class,
         AggregateRepositoryServiceProvider::class,
         PublisherServiceProvider::class,
+        ProjectorServiceProvider::class,
     ];
 
     public function boot(): void
