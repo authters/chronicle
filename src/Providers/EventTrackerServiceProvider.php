@@ -9,32 +9,40 @@ use Authters\Chronicle\Publisher\Events\BusPublisher\OnCreateEventDispatch;
 use Authters\Chronicle\Publisher\Events\BusPublisher\OnRollbackEventDispatch;
 use Authters\Chronicle\Publisher\Events\CreateEvent;
 use Authters\Chronicle\Publisher\Events\DeleteEvent;
+use Authters\Chronicle\Publisher\Events\FetchCategoryNamesEvent;
+use Authters\Chronicle\Publisher\Events\FetchStreamNamesEvent;
 use Authters\Chronicle\Publisher\Events\HasStreamEvent;
 use Authters\Chronicle\Publisher\Events\LoadEvent;
 use Authters\Chronicle\Publisher\Events\LoadReverseEvent;
 use Authters\Chronicle\Publisher\Events\Streams\OnAppendToStreamPublisher;
 use Authters\Chronicle\Publisher\Events\Streams\OnCreateStreamPublisher;
 use Authters\Chronicle\Publisher\Events\Streams\OnDeleteStreamPublisher;
+use Authters\Chronicle\Publisher\Events\Streams\OnFetchCategoryNamesPublisher;
+use Authters\Chronicle\Publisher\Events\Streams\OnfetchStreamNamesPublisher;
 use Authters\Chronicle\Publisher\Events\Streams\OnHasStreamPublisher;
 use Authters\Chronicle\Publisher\Events\Streams\OnLoadReverseStreamPublisher;
 use Authters\Chronicle\Publisher\Events\Streams\OnLoadStreamPublisher;
+use Authters\Chronicle\Publisher\Events\Streams\OnUpdateStreamMetadataPublisher;
 use Authters\Chronicle\Publisher\Events\Transaction\BeginTransaction;
 use Authters\Chronicle\Publisher\Events\Transaction\CommitTransaction;
 use Authters\Chronicle\Publisher\Events\Transaction\OnBeginTransaction;
 use Authters\Chronicle\Publisher\Events\Transaction\OnCommitTransaction;
 use Authters\Chronicle\Publisher\Events\Transaction\OnRollbackTransaction;
 use Authters\Chronicle\Publisher\Events\Transaction\RollbackTransaction;
+use Authters\Chronicle\Publisher\Events\UpdateStreamMetadataEvent;
 use Authters\Chronicle\Publisher\Tracker\TransactionalEventTracker;
 use Authters\Tracker\Contract\Tracker;
 use Illuminate\Support\ServiceProvider;
 
 class EventTrackerServiceProvider extends ServiceProvider
 {
+    // fixMe transactional events
+
     public function register(): void
     {
         $eventPublisher = config('chronicle.publisher.tracker');
         if (!$eventPublisher) {
-            return;
+            throw new \RuntimeException("Event tracker class name not found in chronicle config");
         }
 
         if (!$tracker = $eventPublisher['concrete'] ?? null) {
@@ -65,7 +73,6 @@ class EventTrackerServiceProvider extends ServiceProvider
         }
     }
 
-
     /**
      * @var array
      */
@@ -76,6 +83,11 @@ class EventTrackerServiceProvider extends ServiceProvider
         LoadEvent::class,
         LoadReverseEvent::class,
         HasStreamEvent::class,
+
+        FetchStreamNamesEvent::class,
+        FetchCategoryNamesEvent::class,
+        UpdateStreamMetadataEvent::class,
+
         BeginTransaction::class,
         CommitTransaction::class,
         RollbackTransaction::class,
@@ -91,12 +103,18 @@ class EventTrackerServiceProvider extends ServiceProvider
         OnLoadStreamPublisher::class,
         OnLoadReverseStreamPublisher::class,
         OnHasStreamPublisher::class,
+
+        OnfetchStreamNamesPublisher::class,
+        OnFetchCategoryNamesPublisher::class,
+        OnUpdateStreamMetadataPublisher::class,
+
         OnBeginTransaction::class,
         OnCommitTransaction::class,
         OnRollbackTransaction::class,
     ];
 
     protected $transactionalEventSubscribers = [
+
         OnAppendToEventDispatch::class,
         OnCommitEventDispatch::class,
         OnCreateEventDispatch::class,
