@@ -7,3 +7,5 @@ composer.lock
 /coverage
 /build
 .directory
+
+refactor.md
