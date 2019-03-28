@@ -3,7 +3,6 @@
 namespace Authters\Chronicle\Projection\Projector\Projection;
 
 use Authters\Chronicle\Projection\Factory\PersistentProjectorContext;
-use Authters\Chronicle\Projection\Factory\ProjectorOptions;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectionProjector as BaseProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 use Authters\Chronicle\Support\Projection\ArrayCache;

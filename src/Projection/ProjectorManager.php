@@ -25,7 +25,7 @@ use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjectorFactory as PersistentProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as QueryProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjectorFactory as ReadModelProjector;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Authters\Chronicle\Support\Json;
 
 class ProjectorManager implements ProjectionManager
@@ -41,13 +41,13 @@ class ProjectorManager implements ProjectionManager
     private $eventStreamProvider;
 
     /**
-     * @var Publisher
+     * @var Chronicler
      */
     private $publisher;
 
     public function __construct(ProjectionProvider $projectionProvider,
                                 EventStreamProvider $eventStreamProvider,
-                                Publisher $publisher)
+                                Chronicler $publisher)
     {
         $this->projectionProvider = $projectionProvider;
         $this->eventStreamProvider = $eventStreamProvider;

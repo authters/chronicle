@@ -5,14 +5,14 @@ namespace Authters\Chronicle\Projection\Projector\Projection;
 use Authters\Chronicle\Projection\ProjectorFactory;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjectorFactory;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 
 class ProjectionProjectorFactory extends ProjectorFactory implements PersistentProjectorFactory, PersistentProjector
 {
     /**
-     * @var Publisher
+     * @var Chronicler
      */
-    private $publisher;
+    private $chronicler;
 
     /**
      * @var ProjectionProjector
@@ -40,14 +40,14 @@ class ProjectionProjectorFactory extends ProjectorFactory implements PersistentP
     protected $context;
 
     public function __construct(ProjectionProjectorContext $context,
-                                Publisher $publisher,
+                                Chronicler $chronicler,
                                 ProjectionProjectorLock $lock,
                                 ProjectionProjectorRunner $runner,
                                 string $name)
     {
         parent::__construct($context);
 
-        $this->publisher = $publisher;
+        $this->chronicler = $chronicler;
         $this->lock = $lock;
         $this->runner = $runner;
         $this->name = $name;
@@ -61,7 +61,7 @@ class ProjectionProjectorFactory extends ProjectorFactory implements PersistentP
     {
         if (!$this->projector) {
             $this->projector = new ProjectionProjector(
-                $this->publisher,
+                $this->chronicler,
                 $this->context,
                 $this->lock,
                 $this->runner,

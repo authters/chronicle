@@ -5,7 +5,7 @@ namespace Authters\Chronicle;
 use Authters\Chronicle\Providers\AggregateRepositoryServiceProvider;
 use Authters\Chronicle\Providers\EventTrackerServiceProvider;
 use Authters\Chronicle\Providers\ProjectorServiceProvider;
-use Authters\Chronicle\Providers\PublisherServiceProvider;
+use Authters\Chronicle\Providers\ChroniclerServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 
 class ChronicleServiceProvider extends AggregateServiceProvider
@@ -16,7 +16,7 @@ class ChronicleServiceProvider extends AggregateServiceProvider
     protected $providers = [
         EventTrackerServiceProvider::class,
         AggregateRepositoryServiceProvider::class,
-        PublisherServiceProvider::class,
+        ChroniclerServiceProvider::class,
         ProjectorServiceProvider::class,
     ];
 
@@ -32,7 +32,7 @@ class ChronicleServiceProvider extends AggregateServiceProvider
         );
 
         // fixMe
-        $driver = config('chronicle.publisher.default');
+        $driver = config('chronicle.chronicler.default');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/' . $driver);
     }
 

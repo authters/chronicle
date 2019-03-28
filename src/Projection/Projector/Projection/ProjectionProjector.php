@@ -5,7 +5,7 @@ namespace Authters\Chronicle\Projection\Projector\Projection;
 use Authters\Chronicle\Stream\Stream;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectionProjector as BaseProjector;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Prooph\Common\Messaging\Message;
 
 class ProjectionProjector implements BaseProjector
@@ -31,17 +31,17 @@ class ProjectionProjector implements BaseProjector
     private $name;
 
     /**
-     * @var Publisher
+     * @var Chronicler
      */
-    private $publisher;
+    private $chronicler;
 
-    public function __construct(Publisher $publisher,
+    public function __construct(Chronicler $chronicler,
                                 ProjectionProjectorContext $context,
                                 ProjectionProjectorLock $lock,
                                 ProjectionProjectorRunner $runner,
                                 string $name)
     {
-        $this->publisher = $publisher;
+        $this->chronicler = $chronicler;
         $this->context = $context;
         $this->lock = $lock;
         $this->runner = $runner;
@@ -61,8 +61,8 @@ class ProjectionProjector implements BaseProjector
 
     public function emit(Message $event): void
     {
-        if (!$this->context->isStreamCreated() && !$this->publisher->hasStream(new StreamName($this->name))) {
-            $this->publisher->create(
+        if (!$this->context->isStreamCreated() && !$this->chronicler->hasStream(new StreamName($this->name))) {
+            $this->chronicler->create(
                 new Stream(new StreamName($this->name), new \ArrayIterator())
             );
 
@@ -80,13 +80,13 @@ class ProjectionProjector implements BaseProjector
             $append = true;
         } else {
             $this->context->cachedStreamNames()->rollingAppend($streamName);
-            $append = $this->publisher->hasStream($sn);
+            $append = $this->chronicler->hasStream($sn);
         }
 
         if ($append) {
-            $this->publisher->appendTo($sn, new \ArrayIterator($event));
+            $this->chronicler->appendTo($sn, new \ArrayIterator($event));
         } else {
-            $this->publisher->create(new Stream($sn, new \ArrayIterator($event)));
+            $this->chronicler->create(new Stream($sn, new \ArrayIterator($event)));
         }
     }
 

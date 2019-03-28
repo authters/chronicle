@@ -21,7 +21,7 @@ final class QueryProjectorRunner extends ProjectorRunner
 
         foreach ($this->context->streamPositions()->all() as $streamName => $position) {
             try {
-                $streamEvents = $this->publisher->load(
+                $streamEvents = $this->chronicler->load(
                     new StreamName($streamName),
                     $position + 1,
                     null,

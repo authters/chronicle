@@ -31,7 +31,7 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
             do {
                 foreach ($this->context->streamPositions()->all() as $streamName => $position) {
                     try {
-                        $streamEvents = $this->publisher->load(
+                        $streamEvents = $this->chronicler->load(
                             new StreamName($streamName),
                             $position + 1,
                             null,

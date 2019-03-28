@@ -3,10 +3,10 @@
 namespace Authters\Chronicle\Support\Metadata;
 
 use Authters\Chronicle\Metadata\Causation\CausationMetadataEnricher;
-use Authters\Chronicle\Publisher\Events\AppendToEvent;
-use Authters\Chronicle\Publisher\Events\CreateEvent;
-use Authters\Chronicle\Publisher\Tracker\EventTracker;
-use Authters\Chronicle\Publisher\Tracker\PublisherActionEvent;
+use Authters\Chronicle\Chronicler\Events\AppendToEvent;
+use Authters\Chronicle\Chronicler\Events\CreateEvent;
+use Authters\Chronicle\Chronicler\Tracker\EventTracker;
+use Authters\Chronicle\Chronicler\Tracker\ChroniclerActionEvent;
 use Authters\Chronicle\Stream\Stream;
 use Authters\ServiceBus\Contract\Envelope\Middleware;
 use Authters\ServiceBus\Envelope\Envelope;
@@ -68,7 +68,7 @@ class CausationMetadataMiddleware implements Middleware
 
             public function applyTo(): callable
             {
-                return function (PublisherActionEvent $event) {
+                return function (ChroniclerActionEvent $event) {
                     $stream = $event->stream();
                     $recordedEvents = $stream->streamEvents();
 
@@ -116,7 +116,7 @@ class CausationMetadataMiddleware implements Middleware
 
             public function applyTo(): callable
             {
-                return function (PublisherActionEvent $event) {
+                return function (ChroniclerActionEvent $event) {
                     $recordedEvents = $event->streamEvents();
 
                     $enrichedRecordedEvents = [];

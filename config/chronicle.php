@@ -4,10 +4,10 @@ return [
 
     'connections' => [
 
-        'publisher' => [
+        'chronicler' => [
 
             'mysql' => [
-                'publisher' => \Authters\Chronicle\Publisher\Connection\ConnectionPublisher::class,
+                'chronicler' => \Authters\Chronicle\Chronicler\Connection\ConnectionChronicler::class,
                 'persistence_strategy' => \Authters\Chronicle\Projection\Strategy\MysqlSingleStreamStrategy::class,
                 'naming_strategy' => \Authters\Chronicle\Projection\Strategy\SingleStreamNamingStrategy::class,
                 'metadata_matchers' => \Authters\Chronicle\Support\Metadata\ConnectionMetadataMatchers::class
@@ -19,7 +19,7 @@ return [
         ]
     ],
 
-    'publishing' => [
+    'chronicling' => [
 
         'default' => 'mysql',
 
@@ -36,7 +36,7 @@ return [
         ]
     ],
 
-    'publisher' => [
+    'chronicler' => [
 
         'default' => 'mysql',
 
@@ -47,8 +47,8 @@ return [
         'message_factory' => \Prooph\Common\Messaging\FQCNMessageFactory::class,
 
         'decorator' => [
-            'event_publisher' => \Authters\Chronicle\Publisher\DefaultEventPublisher::class,
-            'transactional_publisher' => \Authters\Chronicle\Publisher\TransactionalDefaultEventPublisher::class,
+            'event_chronicler' => \Authters\Chronicle\Chronicler\DefaultEventChronicler::class,
+            'transactional_chronicler' => \Authters\Chronicle\Chronicler\TransactionalDefaultEventPublisher::class,
         ],
 
         'providers' => [
@@ -57,8 +57,8 @@ return [
         ],
 
         'tracker' => [
-            'concrete' => \Authters\Chronicle\Publisher\Tracker\EventTracker::class,
-            'transactional_concrete' => \Authters\Chronicle\Publisher\Tracker\TransactionalEventTracker::class
+            'concrete' => \Authters\Chronicle\Chronicler\Tracker\EventTracker::class,
+            'transactional_concrete' => \Authters\Chronicle\Chronicler\Tracker\TransactionalEventTracker::class
         ]
     ],
 

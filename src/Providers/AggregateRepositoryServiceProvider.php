@@ -5,7 +5,7 @@ namespace Authters\Chronicle\Providers;
 use Authters\Chronicle\Aggregate\AggregateType;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcherAggregate;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
@@ -15,9 +15,9 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $repositories = $this->fromConfig('publishing.aggregate_repositories');
+        $repositories = $this->fromConfig('chronicling.aggregate_repositories');
 
-        $connectionDriver = $this->fromConfig('publishing.default');
+        $connectionDriver = $this->fromConfig('chronicling.default');
 
         foreach ($repositories as $repository) {
             $this->createRepository($repository, $connectionDriver);
@@ -46,7 +46,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
         $this->app->singleton($repositoryAlias,
             function (Application $app) use ($repository, $repositoryConcrete, $namingStrategy, $metadataMatchers) {
                 return new $repositoryConcrete(
-                    $app->get(Publisher::class),
+                    $app->get(Chronicler::class),
                     AggregateType::fromRootClass($repository['type']),
                     new $namingStrategy(
                         new StreamName($repository['stream_name'])
@@ -58,7 +58,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
 
     protected function determineNamingStrategy(string $driver): string
     {
-        $strategy = $this->fromConfig("connections.publisher.{$driver}.naming_strategy");
+        $strategy = $this->fromConfig("connections.chronicler.{$driver}.naming_strategy");
 
         if (!is_string($strategy) || !class_exists($strategy)) {
             throw new RuntimeException("Invalid Naming strategy from Chronicle config");
@@ -69,7 +69,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
 
     protected function determineMetadataMatchers(string $driver): string
     {
-        $metadataMatchers = $this->fromConfig("connections.publisher.{$driver}.metadata_matchers");
+        $metadataMatchers = $this->fromConfig("connections.chronicler.{$driver}.metadata_matchers");
 
         $concrete = $metadataMatchers;
         $alias = MetadataMatcherAggregate::class;
@@ -79,7 +79,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
         }
 
         if (!class_exists($concrete)) {
-            throw new RuntimeException("Metadata Matchers concrete class not found in Chronicle config");
+            throw new RuntimeException("Metadata Matchers concrete class not found in Chronicler config");
         }
 
         $this->app->bind($alias, $concrete);
@@ -93,7 +93,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
      */
     protected function fromConfig(string $key = null)
     {
-        $config = $this->app->get('config')->get('chronicle');
+        $config = $this->app->get('config')->get('chronicler');
 
         if (!$config) {
             throw new RuntimeException("Chronicle configuration not found");

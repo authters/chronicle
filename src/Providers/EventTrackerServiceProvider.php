@@ -2,35 +2,35 @@
 
 namespace Authters\Chronicle\Providers;
 
-use Authters\Chronicle\Publisher\Events\AppendToEvent;
-use Authters\Chronicle\Publisher\Events\BusPublisher\OnAppendToEventDispatch;
-use Authters\Chronicle\Publisher\Events\BusPublisher\OnCommitEventDispatch;
-use Authters\Chronicle\Publisher\Events\BusPublisher\OnCreateEventDispatch;
-use Authters\Chronicle\Publisher\Events\BusPublisher\OnRollbackEventDispatch;
-use Authters\Chronicle\Publisher\Events\CreateEvent;
-use Authters\Chronicle\Publisher\Events\DeleteEvent;
-use Authters\Chronicle\Publisher\Events\FetchCategoryNamesEvent;
-use Authters\Chronicle\Publisher\Events\FetchStreamNamesEvent;
-use Authters\Chronicle\Publisher\Events\HasStreamEvent;
-use Authters\Chronicle\Publisher\Events\LoadEvent;
-use Authters\Chronicle\Publisher\Events\LoadReverseEvent;
-use Authters\Chronicle\Publisher\Events\Streams\OnAppendToStreamPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnCreateStreamPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnDeleteStreamPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnFetchCategoryNamesPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnfetchStreamNamesPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnHasStreamPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnLoadReverseStreamPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnLoadStreamPublisher;
-use Authters\Chronicle\Publisher\Events\Streams\OnUpdateStreamMetadataPublisher;
-use Authters\Chronicle\Publisher\Events\Transaction\BeginTransaction;
-use Authters\Chronicle\Publisher\Events\Transaction\CommitTransaction;
-use Authters\Chronicle\Publisher\Events\Transaction\OnBeginTransaction;
-use Authters\Chronicle\Publisher\Events\Transaction\OnCommitTransaction;
-use Authters\Chronicle\Publisher\Events\Transaction\OnRollbackTransaction;
-use Authters\Chronicle\Publisher\Events\Transaction\RollbackTransaction;
-use Authters\Chronicle\Publisher\Events\UpdateStreamMetadataEvent;
-use Authters\Chronicle\Publisher\Tracker\TransactionalEventTracker;
+use Authters\Chronicle\Chronicler\Events\AppendToEvent;
+use Authters\Chronicle\Chronicler\Events\BusChronicler\OnAppendToEventDispatch;
+use Authters\Chronicle\Chronicler\Events\BusChronicler\OnCommitEventDispatch;
+use Authters\Chronicle\Chronicler\Events\BusChronicler\OnCreateEventDispatch;
+use Authters\Chronicle\Chronicler\Events\BusChronicler\OnRollbackEventDispatch;
+use Authters\Chronicle\Chronicler\Events\CreateEvent;
+use Authters\Chronicle\Chronicler\Events\DeleteEvent;
+use Authters\Chronicle\Chronicler\Events\FetchCategoryNamesEvent;
+use Authters\Chronicle\Chronicler\Events\FetchStreamNamesEvent;
+use Authters\Chronicle\Chronicler\Events\HasStreamEvent;
+use Authters\Chronicle\Chronicler\Events\LoadEvent;
+use Authters\Chronicle\Chronicler\Events\LoadReverseEvent;
+use Authters\Chronicle\Chronicler\Events\Streams\OnAppendToStream;
+use Authters\Chronicle\Chronicler\Events\Streams\OnCreateStream;
+use Authters\Chronicle\Chronicler\Events\Streams\OnDeleteStream;
+use Authters\Chronicle\Chronicler\Events\Streams\OnFetchCategoryNames;
+use Authters\Chronicle\Chronicler\Events\Streams\OnfetchStreamNames;
+use Authters\Chronicle\Chronicler\Events\Streams\OnHasStream;
+use Authters\Chronicle\Chronicler\Events\Streams\OnLoadReverseStream;
+use Authters\Chronicle\Chronicler\Events\Streams\OnLoadStream;
+use Authters\Chronicle\Chronicler\Events\Streams\OnUpdateStreamMetadata;
+use Authters\Chronicle\Chronicler\Events\Transaction\BeginTransaction;
+use Authters\Chronicle\Chronicler\Events\Transaction\CommitTransaction;
+use Authters\Chronicle\Chronicler\Events\Transaction\OnBeginTransaction;
+use Authters\Chronicle\Chronicler\Events\Transaction\OnCommitTransaction;
+use Authters\Chronicle\Chronicler\Events\Transaction\OnRollbackTransaction;
+use Authters\Chronicle\Chronicler\Events\Transaction\RollbackTransaction;
+use Authters\Chronicle\Chronicler\Events\UpdateStreamMetadataEvent;
+use Authters\Chronicle\Chronicler\Tracker\TransactionalEventTracker;
 use Authters\Tracker\Contract\Tracker;
 use Illuminate\Support\ServiceProvider;
 
@@ -40,16 +40,16 @@ class EventTrackerServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $eventPublisher = config('chronicle.publisher.tracker');
-        if (!$eventPublisher) {
+        $eventChronicler = config('chronicle.chronicler.tracker');
+        if (!$eventChronicler) {
             throw new \RuntimeException("Event tracker class name not found in chronicle config");
         }
 
-        if (!$tracker = $eventPublisher['concrete'] ?? null) {
+        if (!$tracker = $eventChronicler['concrete'] ?? null) {
             throw new \RuntimeException("Invalid config");
         }
 
-        $transactionalTracker = $eventPublisher['transactional_concrete'] ?? null;
+        $transactionalTracker = $eventChronicler['transactional_concrete'] ?? null;
 
         $this->app->singleton($tracker, function () use ($transactionalTracker, $tracker) {
             $instance = new $transactionalTracker ?? $tracker;
@@ -97,16 +97,16 @@ class EventTrackerServiceProvider extends ServiceProvider
      * @var array
      */
     protected $eventSubscribers = [
-        OnAppendToStreamPublisher::class,
-        OnCreateStreamPublisher::class,
-        OnDeleteStreamPublisher::class,
-        OnLoadStreamPublisher::class,
-        OnLoadReverseStreamPublisher::class,
-        OnHasStreamPublisher::class,
+        OnAppendToStream::class,
+        OnCreateStream::class,
+        OnDeleteStream::class,
+        OnLoadStream::class,
+        OnLoadReverseStream::class,
+        OnHasStream::class,
 
-        OnfetchStreamNamesPublisher::class,
-        OnFetchCategoryNamesPublisher::class,
-        OnUpdateStreamMetadataPublisher::class,
+        OnfetchStreamNames::class,
+        OnFetchCategoryNames::class,
+        OnUpdateStreamMetadata::class,
 
         OnBeginTransaction::class,
         OnCommitTransaction::class,

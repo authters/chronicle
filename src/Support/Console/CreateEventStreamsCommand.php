@@ -4,7 +4,7 @@ namespace Authters\Chronicle\Support\Console;
 
 use Authters\Chronicle\Stream\Stream;
 use Authters\Chronicle\Stream\StreamName;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -23,11 +23,11 @@ class CreateEventStreamsCommand extends Command
     protected $description = 'Create stream(s)';
 
     /**
-     * @var Publisher
+     * @var Chronicler
      */
     private $publisher;
 
-    public function __construct(Publisher $publisher)
+    public function __construct(Chronicler $publisher)
     {
         parent::__construct();
 

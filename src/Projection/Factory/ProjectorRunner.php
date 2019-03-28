@@ -4,7 +4,7 @@ namespace Authters\Chronicle\Projection\Factory;
 
 use Authters\Chronicle\Projection\Projector\Query\QueryProjectorContext;
 use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 
 abstract class ProjectorRunner
 {
@@ -14,9 +14,9 @@ abstract class ProjectorRunner
     protected $eventStreamProvider;
 
     /**
-     * @var Publisher
+     * @var Chronicler
      */
-    protected $publisher;
+    protected $chronicler;
 
     /**
      * @var ProjectorContext|PersistentProjectorContext|QueryProjectorContext
@@ -30,12 +30,12 @@ abstract class ProjectorRunner
 
     public function __construct(ProjectorContext $context,
                                 EventStreamProvider $eventStreamProvider,
-                                Publisher $publisher,
+                                Chronicler $chronicler,
                                 PersistentProjectorLock $lock = null)
     {
         $this->context = $context;
         $this->eventStreamProvider = $eventStreamProvider;
-        $this->publisher = $publisher;
+        $this->chronicler = $chronicler;
         $this->lock = $lock;
     }
 

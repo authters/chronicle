@@ -7,14 +7,14 @@ use Authters\Chronicle\Stream\Stream;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcherAggregate;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\StreamNamingStrategy;
 use Prooph\Common\Messaging\Message;
 
 class AggregateRepository
 {
     /**
-     * @var Publisher
+     * @var Chronicler
      */
     private $publisher;
 
@@ -43,7 +43,7 @@ class AggregateRepository
      */
     private $identityMap = [];
 
-    public function __construct(Publisher $publisher,
+    public function __construct(Chronicler $publisher,
                                 AggregateType $modelType,
                                 StreamNamingStrategy $namingStrategy,
                                 MetadataMatcherAggregate $metadataMatchers,

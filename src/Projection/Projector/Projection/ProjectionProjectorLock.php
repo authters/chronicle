@@ -7,23 +7,23 @@ use Authters\Chronicle\Projection\Factory\PersistentProjectorLock;
 use Authters\Chronicle\Projection\Factory\ProjectorContext;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
-use Authters\Chronicle\Support\Contracts\Projection\Publisher\Publisher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 
 class ProjectionProjectorLock extends PersistentProjectorLock
 {
     /**
-     * @var Publisher
+     * @var Chronicler
      */
-    private $publisher;
+    private $chronicler;
 
-    public function __construct(Publisher $publisher,
+    public function __construct(Chronicler $chronicler,
                                 ProjectionProvider $projectionProvider,
                                 ProjectorContext $context,
                                 string $name)
     {
         parent::__construct($projectionProvider, $context, $name);
 
-        $this->publisher = $publisher;
+        $this->chronicler = $chronicler;
     }
 
     /**
@@ -34,7 +34,7 @@ class ProjectionProjectorLock extends PersistentProjectorLock
         parent::reset();
 
         try {
-            $this->publisher->delete(new StreamName($this->name));
+            $this->chronicler->delete(new StreamName($this->name));
         } catch (StreamNotFound $exception) {
         }
     }
@@ -45,7 +45,7 @@ class ProjectionProjectorLock extends PersistentProjectorLock
     protected function deleteEmittedEvents(): void
     {
         try {
-            $this->publisher->delete(new StreamName($this->name));
+            $this->chronicler->delete(new StreamName($this->name));
         } catch (StreamNotFound $exception) {
         }
     }
