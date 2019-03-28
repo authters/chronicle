@@ -1,12 +1,14 @@
 <?php
 
-namespace Authters\Chronicle\Aggregate;
+namespace Authters\Chronicle\Aggregate\Model;
 
+use Authters\Chronicle\Aggregate\AggregateChanged;
 use Authters\Chronicle\Aggregate\Concerns\HasEventProducer;
 use Authters\Chronicle\Aggregate\Concerns\HasEventSourced;
 use Authters\Chronicle\Exceptions\RuntimeException;
+use Illuminate\Database\Eloquent\Model;
 
-abstract class AggregateRoot
+abstract class AggregateModelRoot extends Model
 {
     use HasEventProducer, HasEventSourced;
 
@@ -27,9 +29,5 @@ abstract class AggregateRoot
     protected function determineHandlerMethodFor(AggregateChanged $event): string
     {
         return 'when' . class_basename($event);
-    }
-
-    protected function __construct()
-    {
     }
 }

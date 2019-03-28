@@ -1,7 +1,8 @@
 <?php
 
-namespace Authters\Chronicle\Aggregate;
+namespace Authters\Chronicle\Aggregate\Model;
 
+use Authters\Chronicle\Aggregate\AggregateType;
 use Authters\Chronicle\Exceptions\StreamNotFound;
 use Authters\Chronicle\Stream\Stream;
 use Authters\Chronicle\Stream\StreamName;
@@ -11,7 +12,7 @@ use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\StreamNamingStrategy;
 use Prooph\Common\Messaging\Message;
 
-class AggregateRepository
+class AggregateModelRepository
 {
     /**
      * @var Chronicler
@@ -57,10 +58,11 @@ class AggregateRepository
     }
 
     /**
-     * @param AggregateRoot $root
+     * @param AggregateModelRoot $root
+     * @throws \ReflectionException
      * @throws \Throwable
      */
-    protected function saveAggregateRoot(AggregateRoot $root): void
+    protected function saveAggregateRoot(AggregateModelRoot $root): void
     {
         $this->assertModelType($root);
 
@@ -110,7 +112,7 @@ class AggregateRepository
             return null;
         }
 
-        /** @var AggregateRoot $aggregateType */
+        /** @var AggregateModelRoot $aggregateType */
         $aggregateType = $this->modelType->toString();
 
         return $this->identityMap[$aggregateId] = $aggregateType::reconstituteFromHistory($eventStreams);
@@ -163,11 +165,11 @@ class AggregateRepository
     }
 
     /**
-     * @param AggregateRoot $root
+     * @param AggregateModelRoot $root
      * @return string
      * @throws \ReflectionException
      */
-    protected function getAggregateId(AggregateRoot $root): string
+    protected function getAggregateId(AggregateModelRoot $root): string
     {
         $class = new \ReflectionMethod($root, 'aggregateId');
         $class->setAccessible(true);
