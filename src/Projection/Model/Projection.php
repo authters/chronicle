@@ -101,7 +101,9 @@ class Projection extends Model implements ProjectionModel, ProjectionProvider
 
     public function projectionExists(string $name): bool
     {
-        return null !== $this->findByName($name);
+        return $this->newInstance()->newQuery()
+            ->where('name', $name)
+            ->exists();
     }
 
     public function getName(): string
