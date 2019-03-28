@@ -2,9 +2,9 @@
 
 namespace Authters\Chronicle\Chronicler\Events\Transaction;
 
-use Authters\Chronicle\Support\Publisher\AbstractPublisherNamedEvent;
+use Authters\Chronicle\Support\Chronicler\AbstractChroniclerNamedEvent;
 
-class CommitTransaction extends AbstractPublisherNamedEvent
+class CommitTransaction extends AbstractChroniclerNamedEvent
 {
     public function name(): string
     {

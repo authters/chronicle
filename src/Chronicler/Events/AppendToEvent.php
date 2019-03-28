@@ -2,9 +2,9 @@
 
 namespace Authters\Chronicle\Chronicler\Events;
 
-use Authters\Chronicle\Support\Publisher\AbstractPublisherNamedEvent;
+use Authters\Chronicle\Support\Chronicler\AbstractChroniclerNamedEvent;
 
-class AppendToEvent extends AbstractPublisherNamedEvent
+class AppendToEvent extends AbstractChroniclerNamedEvent
 {
     public function name(): string
     {

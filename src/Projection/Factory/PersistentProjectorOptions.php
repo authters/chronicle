@@ -17,22 +17,22 @@ class PersistentProjectorOptions extends ProjectorOptions
     /**
      * @var int
      */
-    public $persistBlockSize = 1000;
+    public $persistBlockSize = self::DEFAULT_PERSIST_BLOCK_SIZE;
 
     /**
      * @var int
      */
-    public $lockTimeoutMs = 1000;
+    public $lockTimeoutMs = self::DEFAULT_LOCK_TIMEOUT_MS;
 
     /**
      * @var int
      */
-    public $sleep = 100000;
+    public $sleep = self::DEFAULT_SLEEP;
 
     /**
      * @var int
      */
-    public $updateLockThreshold = 0;
+    public $updateLockThreshold = self::OPTION_UPDATE_LOCK_THRESHOLD;
 
     protected function availableDefault(): array
     {

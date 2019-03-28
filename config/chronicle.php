@@ -48,7 +48,7 @@ return [
 
         'decorator' => [
             'event_chronicler' => \Authters\Chronicle\Chronicler\DefaultEventChronicler::class,
-            'transactional_chronicler' => \Authters\Chronicle\Chronicler\TransactionalDefaultEventPublisher::class,
+            'transactional_chronicler' => \Authters\Chronicle\Chronicler\TransactionalDefaultEventChronicler::class,
         ],
 
         'providers' => [

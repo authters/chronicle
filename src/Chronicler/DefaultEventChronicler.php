@@ -215,7 +215,7 @@ class DefaultEventChronicler implements EventChronicler
         return $event->categoryNames();
     }
 
-    public function getInnerPublisher(): Chronicler
+    public function getInnerChronicler(): Chronicler
     {
         return $this->publisher;
     }

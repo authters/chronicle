@@ -13,7 +13,7 @@ class ProjectorOptions
     /**
      * var bool
      */
-    public $triggerPcntlSignalDispatch = false;
+    public $triggerPcntlSignalDispatch = self::DEFAULT_PCNTL_DISPATCH;
 
     public function __construct(array $options = [])
     {

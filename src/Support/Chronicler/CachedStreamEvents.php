@@ -1,6 +1,6 @@
 <?php
 
-namespace Authters\Chronicle\Support\Publisher;
+namespace Authters\Chronicle\Support\Chronicler;
 
 class CachedStreamEvents
 {

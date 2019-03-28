@@ -1,10 +1,10 @@
 <?php
 
-namespace Authters\Chronicle\Support\Publisher;
+namespace Authters\Chronicle\Support\Chronicler;
 
 use Authters\Tracker\Event\AbstractNamedEvent;
 
-abstract class AbstractPublisherNamedEvent extends AbstractNamedEvent
+abstract class AbstractChroniclerNamedEvent extends AbstractNamedEvent
 {
     public function priority(): int
     {

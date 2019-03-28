@@ -25,19 +25,19 @@ class CreateEventStreamsCommand extends Command
     /**
      * @var Chronicler
      */
-    private $publisher;
+    private $chronicler;
 
-    public function __construct(Chronicler $publisher)
+    public function __construct(Chronicler $chronicler)
     {
         parent::__construct();
 
-        $this->publisher = $publisher;
+        $this->chronicler = $chronicler;
     }
 
     public function handle(): void
     {
         $this->getStreams()->each(function (Stream $stream) {
-            $this->publisher->create($stream);
+            $this->chronicler->create($stream);
 
             $this->line("Stream name {$stream->streamName()} created");
         });

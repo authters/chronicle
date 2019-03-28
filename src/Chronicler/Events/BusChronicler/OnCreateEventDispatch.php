@@ -6,7 +6,7 @@ use Authters\Chronicle\Chronicler\Events\CreateEvent;
 use Authters\Chronicle\Chronicler\Tracker\ChroniclerActionEvent;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalEventChronicler;
-use Authters\Chronicle\Support\Publisher\CachedStreamEvents;
+use Authters\Chronicle\Support\Chronicler\CachedStreamEvents;
 use Authters\ServiceBus\EventBus;
 use Authters\Tracker\Contract\NamedEvent;
 use Authters\Tracker\Event\AbstractSubscriber;

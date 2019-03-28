@@ -2,9 +2,9 @@
 
 namespace Authters\Chronicle\Chronicler\Events;
 
-use Authters\Chronicle\Support\Publisher\AbstractPublisherNamedEvent;
+use Authters\Chronicle\Support\Chronicler\AbstractChroniclerNamedEvent;
 
-class FetchStreamNamesEvent extends AbstractPublisherNamedEvent
+class FetchStreamNamesEvent extends AbstractChroniclerNamedEvent
 {
     public function name(): string
     {

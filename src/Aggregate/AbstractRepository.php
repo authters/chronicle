@@ -166,11 +166,6 @@ abstract class AbstractRepository
         return 1 === $message->metadata()['_aggregate_version'];
     }
 
-    protected function assertAggregateType(object $root): void
-    {
-        $this->aggregateType->assert($root);
-    }
-
     /**
      * @param object $root
      * @return string
@@ -184,6 +179,11 @@ abstract class AbstractRepository
         $class->setAccessible(true);
 
         return $class->invoke($root);
+    }
+
+    protected function assertAggregateType(object $root): void
+    {
+        $this->aggregateType->assert($root);
     }
 
     protected function assertAggregateRootType(object $root): void

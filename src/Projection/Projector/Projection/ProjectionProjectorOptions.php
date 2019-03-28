@@ -12,7 +12,7 @@ final class ProjectionProjectorOptions extends PersistentProjectorOptions
     /**
      * @var int
      */
-    public $cacheSize = 1000;
+    public $cacheSize = self::DEFAULT_CACHE_SIZE;
 
     protected function availableDefault(): array
     {

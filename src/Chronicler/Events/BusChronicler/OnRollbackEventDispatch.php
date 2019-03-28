@@ -4,7 +4,7 @@ namespace Authters\Chronicle\Chronicler\Events\BusChronicler;
 
 use Authters\Chronicle\Chronicler\Events\Transaction\RollbackTransaction;
 use Authters\Chronicle\Chronicler\Tracker\ChroniclerActionEvent;
-use Authters\Chronicle\Support\Publisher\CachedStreamEvents;
+use Authters\Chronicle\Support\Chronicler\CachedStreamEvents;
 use Authters\ServiceBus\EventBus;
 use Authters\Tracker\Contract\NamedEvent;
 use Authters\Tracker\Event\AbstractSubscriber;

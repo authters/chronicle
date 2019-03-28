@@ -9,7 +9,7 @@ use Authters\Chronicle\Chronicler\Tracker\TransactionalChroniclerActionEvent;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalEventChronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalChronicler;
 
-class TransactionalDefaultEventPublisher extends DefaultEventChronicler implements TransactionalEventChronicler
+class TransactionalDefaultEventChronicler extends DefaultEventChronicler implements TransactionalEventChronicler
 {
     /**
      * @var TransactionalChronicler

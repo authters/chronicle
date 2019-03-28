@@ -114,7 +114,6 @@ class EventTrackerServiceProvider extends ServiceProvider
     ];
 
     protected $transactionalEventSubscribers = [
-
         OnAppendToEventDispatch::class,
         OnCommitEventDispatch::class,
         OnCreateEventDispatch::class,
