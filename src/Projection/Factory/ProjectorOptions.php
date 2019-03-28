@@ -18,23 +18,21 @@ class ProjectorOptions
     public function __construct(array $options = [])
     {
         foreach ($options as $default => $option) {
-            $defaultCamel = Str::camel($default);
-
-            if (!array_key_exists($defaultCamel, $this->availableDefault())) {
+            if (!array_key_exists($default, $this->availableDefault())) {
                 throw new RuntimeException("Default key $default not available in " . (static::class));
             }
 
-            if(!is_int($option) || !is_bool($option)){
+            if (!is_int($option) && !is_bool($option)) {
                 throw new RuntimeException("Default option for $default key must be an integer or boolean value");
             }
 
-            $this->{$defaultCamel} = $option;
+            $this->{Str::camel($default)} = $option;
         }
     }
 
     protected function availableDefault(): array
     {
-        return [self::DEFAULT_PCNTL_DISPATCH => self::OPTION_PCNTL_DISPATCH];
+        return [self::OPTION_PCNTL_DISPATCH => self::DEFAULT_PCNTL_DISPATCH];
     }
 
     public function __set($name, $value)
