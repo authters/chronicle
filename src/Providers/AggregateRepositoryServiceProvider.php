@@ -93,7 +93,7 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
      */
     protected function fromConfig(string $key = null)
     {
-        $config = $this->app->get('config')->get('chronicler');
+        $config = $this->app->get('config')->get('chronicle');
 
         if (!$config) {
             throw new RuntimeException("Chronicle configuration not found");
