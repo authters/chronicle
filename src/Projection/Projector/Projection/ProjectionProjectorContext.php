@@ -16,7 +16,12 @@ class ProjectionProjectorContext extends PersistentProjectorContext
      */
     private $cachedStreamNames;
 
-    public function __construct(ProjectorOptions $options)
+    /**
+     * @var ProjectionProjectorOptions
+     */
+    protected $options;
+
+    public function __construct(ProjectionProjectorOptions $options)
     {
         parent::__construct($options);
 

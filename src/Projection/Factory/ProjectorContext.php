@@ -3,17 +3,13 @@
 namespace Authters\Chronicle\Projection\Factory;
 
 use Authters\Chronicle\Exceptions\RuntimeException;
+use Authters\Chronicle\Projection\Projector\Projection\ProjectionProjectorOptions;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 use Authters\Chronicle\Support\Projection\StreamPositions;
 
 abstract class ProjectorContext
 {
-    /**
-     * @var ProjectorOptions
-     */
-    private $options;
-
     /**
      * @var array
      */
@@ -58,6 +54,11 @@ abstract class ProjectorContext
      * @var ?string
      */
     protected $currentStreamName;
+
+    /**
+     * @var ProjectorOptions
+     */
+    protected $options;
 
     public function __construct(ProjectorOptions $options)
     {
@@ -265,6 +266,9 @@ abstract class ProjectorContext
         return $this->metadataMatcher;
     }
 
+    /**
+     * @return ProjectorOptions|PersistentProjectorOptions|ProjectionProjectorOptions
+     */
     public function options(): ProjectorOptions
     {
         return $this->options;

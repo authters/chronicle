@@ -16,7 +16,7 @@ abstract class PersistentProjectorContext extends ProjectorContext
      */
     protected $streamCreated = false;
 
-    public function __construct(ProjectorOptions $options)
+    public function __construct(PersistentProjectorOptions $options)
     {
         parent::__construct($options);
 

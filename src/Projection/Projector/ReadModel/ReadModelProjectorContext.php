@@ -9,6 +9,11 @@ use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector
 
 class ReadModelProjectorContext extends PersistentProjectorContext
 {
+    /**
+     * @var ReadModelProjectorOptions
+     */
+    protected $options;
+
     protected function createHandlerContext(Projector $projector, ?string &$streamName): object
     {
         return new class($projector, $streamName)

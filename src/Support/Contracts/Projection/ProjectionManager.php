@@ -14,9 +14,10 @@ use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjector
 interface ProjectionManager extends ProjectionReadManager
 {
     /**
+     * @param array $options
      * @return ProjectorFactory|QueryProjector
      */
-    public function createQuery(): ProjectorFactory;
+    public function createQuery(array $options = []): ProjectorFactory;
 
     /**
      * @param string $name
