@@ -5,4 +5,3 @@
 
 * publisher/connection is an implementation put it in his own folder
 * change publisher name to chronicle/Chronic ?
-* projector options merge available options
