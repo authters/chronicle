@@ -31,14 +31,14 @@ class EventStream extends Model implements EventStreamModel, EventStreamProvider
     {
         return $this->newInstance()->newQuery()
             ->whereIn('category', $categories)
-            ->get(['real_stream_name']);
+            ->pluck('real_stream_name');
     }
 
     public function findAllExceptInternalStreams(): Collection
     {
         return $this->newInstance()->newQuery()
             ->whereRaw("real_stream_name NOT LIKE '$%'")
-            ->get(['real_stream_name']);
+            ->pluck('real_stream_name');
     }
 
     public function filterStreamNames(?string $filter,
