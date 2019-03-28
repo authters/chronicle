@@ -50,7 +50,6 @@ abstract class ProjectorRunner
         } elseif ($this->context->isQueryAll()) {
             $realStreamNames = $this->eventStreamProvider
                 ->findAllExceptInternalStreams()
-                ->pluck('real_stream_name')
                 ->toArray();
         } else {
             $realStreamNames = $this->context->queryStreams();
