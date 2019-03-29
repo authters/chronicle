@@ -4,6 +4,7 @@ namespace Authters\Chronicle\Projection\Factory;
 
 use Authters\Chronicle\Exceptions\StreamNotFound;
 use Authters\Chronicle\Stream\StreamName;
+use Exception;
 
 abstract class PersistentProjectorRunner extends ProjectorRunner
 {
@@ -14,7 +15,7 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
 
     /**
      * @param bool $keepRunning
-     * @throws \Exception
+     * @throws Exception
      */
     public function run(bool $keepRunning = true): void
     {
@@ -58,7 +59,7 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
 
                 $this->stopRunnerProcessing(false, $keepRunning);
 
-                $this->prepareStreamPositions();
+                $this->context->prepareStreamPositions();
             } while ($keepRunning && !$this->context->isStopped());
         } finally {
             $this->lock->releaseLock();
@@ -69,7 +70,7 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
      * @param bool $firstExecution
      * @param bool $keepRunning
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     private function stopRunnerProcessing(bool $firstExecution, bool $keepRunning): bool
     {
@@ -104,7 +105,7 @@ abstract class PersistentProjectorRunner extends ProjectorRunner
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function handleEventCounter(): void
     {

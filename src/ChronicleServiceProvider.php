@@ -5,7 +5,7 @@ namespace Authters\Chronicle;
 use Authters\Chronicle\Providers\AggregateRepositoryServiceProvider;
 use Authters\Chronicle\Providers\EventTrackerServiceProvider;
 use Authters\Chronicle\Providers\ProjectorServiceProvider;
-use Authters\Chronicle\Providers\ChroniclerServiceProvider;
+use Authters\Chronicle\Providers\PublisherServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 
 class ChronicleServiceProvider extends AggregateServiceProvider
@@ -16,7 +16,7 @@ class ChronicleServiceProvider extends AggregateServiceProvider
     protected $providers = [
         EventTrackerServiceProvider::class,
         AggregateRepositoryServiceProvider::class,
-        ChroniclerServiceProvider::class,
+        PublisherServiceProvider::class,
         ProjectorServiceProvider::class,
     ];
 

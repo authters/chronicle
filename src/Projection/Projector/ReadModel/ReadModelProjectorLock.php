@@ -34,7 +34,6 @@ final class ReadModelProjectorLock extends PersistentProjectorLock
         parent::persist();
     }
 
-
     public function reset(): void
     {
         $this->readModel->reset();

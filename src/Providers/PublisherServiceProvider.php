@@ -11,7 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
 
-class ChroniclerServiceProvider extends ServiceProvider
+class PublisherServiceProvider extends ServiceProvider
 {
     /**
      * @var bool

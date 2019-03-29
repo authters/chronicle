@@ -32,7 +32,7 @@ class PersistentProjectorOptions extends ProjectorOptions
     /**
      * @var int
      */
-    public $updateLockThreshold = self::OPTION_UPDATE_LOCK_THRESHOLD;
+    public $updateLockThreshold = self::DEFAULT_UPDATE_LOCK_THRESHOLD;
 
     protected function availableDefault(): array
     {
