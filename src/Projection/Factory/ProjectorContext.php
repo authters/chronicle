@@ -77,7 +77,6 @@ abstract class ProjectorContext
         $this->state = [];
     }
 
-    // todo replace bloc from runner and move event stream provider here
     public function prepareStreamPositions(): void
     {
         if ($this->isQueryCategories()) {

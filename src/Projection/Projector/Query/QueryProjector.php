@@ -45,10 +45,15 @@ class QueryProjector implements BaseProjector
         $callback = $this->context->initCallback();
 
         if (\is_callable($callback)) {
-            $this->context->setState($callback());
+            $callback = $callback();
+
+            if(\is_array($callback)){
+                $this->context->setState($callback());
+
+                return;
+            }
         }
 
-        // fix Me weird return in original Pdo EventStoreQuery
         $this->context->resetState();
     }
 
