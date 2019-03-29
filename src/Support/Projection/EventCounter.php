@@ -28,4 +28,9 @@ class EventCounter
     {
         return $this->counter === $num;
     }
+
+    public function current(): int
+    {
+        return $this->counter;
+    }
 }
