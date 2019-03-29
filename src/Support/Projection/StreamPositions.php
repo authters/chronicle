@@ -14,6 +14,16 @@ class StreamPositions
         $this->streamPositions = $streamPositions;
     }
 
+    public function prepareStreamPositions(iterable $names): void
+    {
+        $streamPositions = [];
+        foreach ($names as $name) {
+            $streamPositions[$name] = 0;
+        }
+
+        $this->merge($streamPositions);
+    }
+
     public function merge(array $streamPositions): void
     {
         $this->streamPositions = array_merge($streamPositions, $this->streamPositions);

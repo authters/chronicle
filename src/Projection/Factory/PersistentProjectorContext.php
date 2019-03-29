@@ -2,6 +2,7 @@
 
 namespace Authters\Chronicle\Projection\Factory;
 
+use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Projection\EventCounter;
 
 abstract class PersistentProjectorContext extends ProjectorContext
@@ -16,9 +17,9 @@ abstract class PersistentProjectorContext extends ProjectorContext
      */
     protected $streamCreated = false;
 
-    public function __construct(PersistentProjectorOptions $options)
+    public function __construct(EventStreamProvider $eventStreamProvider, PersistentProjectorOptions $options)
     {
-        parent::__construct($options);
+        parent::__construct($eventStreamProvider, $options);
 
         $this->eventCounter = new EventCounter();
         $this->streamCreated = false;

@@ -3,16 +3,10 @@
 namespace Authters\Chronicle\Projection\Factory;
 
 use Authters\Chronicle\Projection\Projector\Query\QueryProjectorContext;
-use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 
 abstract class ProjectorRunner
 {
-    /**
-     * @var EventStreamProvider
-     */
-    protected $eventStreamProvider;
-
     /**
      * @var Chronicler
      */
@@ -29,33 +23,12 @@ abstract class ProjectorRunner
     protected $lock;
 
     public function __construct(ProjectorContext $context,
-                                EventStreamProvider $eventStreamProvider,
                                 Chronicler $chronicler,
                                 PersistentProjectorLock $lock = null)
     {
         $this->context = $context;
-        $this->eventStreamProvider = $eventStreamProvider;
         $this->chronicler = $chronicler;
         $this->lock = $lock;
-    }
-
-    // checkMe move the bloc to context?
-    protected function prepareStreamPositions(): void
-    {
-         if ($this->context->isQueryCategories()) {
-            $categories = $this->context->queryCategories();
-            $realStreamNames = $this->eventStreamProvider
-                ->findByCategories($categories)
-                ->toArray();
-        } elseif ($this->context->isQueryAll()) {
-            $realStreamNames = $this->eventStreamProvider
-                ->findAllExceptInternalStreams()
-                ->toArray();
-        } else {
-            $realStreamNames = $this->context->queryStreams();
-        }
-
-        $this->context->prepareStreamPositions($realStreamNames);
     }
 
     /**
@@ -153,7 +126,7 @@ abstract class ProjectorRunner
 
         $this->lock->acquireLock();
 
-        $this->prepareStreamPositions();
+        $this->context->prepareStreamPositions();
 
         $this->lock->load();
     }

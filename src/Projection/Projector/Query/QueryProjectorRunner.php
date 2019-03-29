@@ -17,7 +17,7 @@ final class QueryProjectorRunner extends ProjectorRunner
 
         $this->context->stop(false);
 
-        $this->prepareStreamPositions();
+        $this->context->prepareStreamPositions();
 
         foreach ($this->context->streamPositions()->all() as $streamName => $position) {
             try {

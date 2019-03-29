@@ -18,6 +18,7 @@ use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorFactory;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorLock;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorOptions;
 use Authters\Chronicle\Projection\Projector\ReadModel\ReadModelProjectorRunner;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ProjectionProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Model\ReadModel;
@@ -25,7 +26,6 @@ use Authters\Chronicle\Support\Contracts\Projection\ProjectionManager;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\PersistentProjectorFactory as PersistentProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectorFactory as QueryProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ReadModelProjectorFactory as ReadModelProjector;
-use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Authters\Chronicle\Support\Json;
 
 class ProjectorManager implements ProjectionManager
@@ -56,16 +56,16 @@ class ProjectorManager implements ProjectionManager
 
     public function createQuery(array $options = []): QueryProjector
     {
-        $context = new QueryProjectorContext(new ProjectorOptions($options));
+        $context = new QueryProjectorContext($this->eventStreamProvider, new ProjectorOptions($options));
 
-        $runner = new QueryProjectorRunner($context, $this->eventStreamProvider, $this->publisher);
+        $runner = new QueryProjectorRunner($context, $this->publisher);
 
         return new QueryProjectorFactory($context, $runner);
     }
 
     public function createProjection(string $name, array $options = []): PersistentProjector
     {
-        $context = new ProjectionProjectorContext(new ProjectionProjectorOptions($options));
+        $context = new ProjectionProjectorContext($this->eventStreamProvider, new ProjectionProjectorOptions($options));
 
         $lock = new ProjectionProjectorLock(
             $this->publisher,
@@ -74,12 +74,7 @@ class ProjectorManager implements ProjectionManager
             $name
         );
 
-        $runner = new ProjectionProjectorRunner(
-            $context,
-            $this->eventStreamProvider,
-            $this->publisher,
-            $lock
-        );
+        $runner = new ProjectionProjectorRunner($context, $this->publisher, $lock);
 
         return new ProjectionProjectorFactory(
             $context,
@@ -94,17 +89,11 @@ class ProjectorManager implements ProjectionManager
                                               ReadModel $readModel,
                                               array $options = []): ReadModelProjector
     {
-        $context = new ReadModelProjectorContext(new ReadModelProjectorOptions($options));
+        $context = new ReadModelProjectorContext($this->eventStreamProvider, new ReadModelProjectorOptions($options));
 
         $lock = new ReadModelProjectorLock($context, $this->projectionProvider, $name, $readModel);
 
-        $runner = new ReadModelProjectorRunner(
-            $context,
-            $this->eventStreamProvider,
-            $this->publisher,
-            $lock,
-            $readModel
-        );
+        $runner = new ReadModelProjectorRunner($context, $this->publisher, $lock, $readModel);
 
         return new ReadModelProjectorFactory($context, $lock, $runner, $readModel, $name);
     }

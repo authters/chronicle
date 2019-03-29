@@ -5,6 +5,7 @@ namespace Authters\Chronicle\Projection\Factory;
 use Authters\Chronicle\Exceptions\RuntimeException;
 use Authters\Chronicle\Projection\Projector\Projection\ProjectionProjectorOptions;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;
+use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 use Authters\Chronicle\Support\Projection\StreamPositions;
 
@@ -56,14 +57,19 @@ abstract class ProjectorContext
     protected $currentStreamName;
 
     /**
+     * @var EventStreamProvider
+     */
+    private $eventStreamProvider;
+
+    /**
      * @var ProjectorOptions
      */
     protected $options;
 
-    public function __construct(ProjectorOptions $options)
+    public function __construct(EventStreamProvider $eventStreamProvider, ProjectorOptions $options)
     {
+        $this->eventStreamProvider = $eventStreamProvider;
         $this->options = $options;
-
         $this->streamPositions = new StreamPositions();
         $this->status = ProjectionStatus::IDLE();
         $this->isStopped = false;
@@ -72,14 +78,21 @@ abstract class ProjectorContext
     }
 
     // todo replace bloc from runner and move event stream provider here
-    public function prepareStreamPositions(iterable $names): void
+    public function prepareStreamPositions(): void
     {
-        $streamPositions = [];
-        foreach ($names as $name) {
-            $streamPositions[$name] = 0;
+        if ($this->isQueryCategories()) {
+            $realStreamNames = $this->eventStreamProvider
+                ->findByCategories($this->queryCategories())
+                ->toArray();
+        } elseif ($this->isQueryAll()) {
+            $realStreamNames = $this->eventStreamProvider
+                ->findAllExceptInternalStreams()
+                ->toArray();
+        } else {
+            $realStreamNames = $this->queryStreams();
         }
 
-        $this->streamPositions->merge($streamPositions);
+        $this->streamPositions->prepareStreamPositions($realStreamNames);
     }
 
     public function __invoke(Projector $projector, ?string $currentStreamName): void

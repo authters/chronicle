@@ -3,6 +3,7 @@
 namespace Authters\Chronicle\Projection\Projector\Projection;
 
 use Authters\Chronicle\Projection\Factory\PersistentProjectorContext;
+use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\ProjectionProjector as BaseProjector;
 use Authters\Chronicle\Support\Contracts\Projection\Projector\Projector;
 use Authters\Chronicle\Support\Projection\ArrayCache;
@@ -20,9 +21,9 @@ class ProjectionProjectorContext extends PersistentProjectorContext
      */
     protected $options;
 
-    public function __construct(ProjectionProjectorOptions $options)
+    public function __construct(EventStreamProvider $eventStreamProvider, ProjectionProjectorOptions $options)
     {
-        parent::__construct($options);
+        parent::__construct($eventStreamProvider, $options);
 
         $this->cachedStreamNames = new ArrayCache($options->cacheSize);
     }
