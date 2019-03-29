@@ -71,6 +71,17 @@ abstract class ProjectorContext
         $this->state = [];
     }
 
+    // todo replace bloc from runner and move event stream provider here
+    public function prepareStreamPositions(iterable $names): void
+    {
+        $streamPositions = [];
+        foreach ($names as $name) {
+            $streamPositions[$name] = 0;
+        }
+
+        $this->streamPositions->merge($streamPositions);
+    }
+
     public function __invoke(Projector $projector, ?string $currentStreamName): void
     {
         if ($this->hasSingleHandler()) {
@@ -111,17 +122,6 @@ abstract class ProjectorContext
     public function isStopped(): bool
     {
         return $this->isStopped;
-    }
-
-    // todo replace bloc from runner and move event stream provider here
-    public function prepareStreamPositions(iterable $names)
-    {
-        $streamPositions = [];
-        foreach ($names as $name) {
-            $streamPositions[$name] = 0;
-        }
-
-        $this->streamPositions->merge($streamPositions);
     }
 
     public function streamPositions(): StreamPositions
