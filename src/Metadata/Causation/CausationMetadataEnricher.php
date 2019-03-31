@@ -37,7 +37,7 @@ class CausationMetadataEnricher implements MetadataEnricher
         $this->command = null;
     }
 
-    public function getCommand(): Message
+    public function getCommand(): ?Message
     {
         return $this->command;
     }
