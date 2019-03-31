@@ -4,7 +4,6 @@ namespace Authters\Chronicle\Chronicler\Events\BusTransaction;
 
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalEventChronicler;
-use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalChronicler;
 use Authters\ServiceBus\Support\Events\Named\DispatchedEvent;
 use Authters\Tracker\Contract\MessageActionEvent;
 use Authters\Tracker\Contract\NamedEvent;

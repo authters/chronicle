@@ -11,7 +11,7 @@ class CachedStreamEvents
 
     public function add(iterable $streamEvents): void
     {
-        $this->streamEvents[] = $streamEvents;
+        $this->streamEvents = array_merge($this->streamEvents, $streamEvents);
     }
 
     public function reset(): void

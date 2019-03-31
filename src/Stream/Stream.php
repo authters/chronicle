@@ -2,6 +2,8 @@
 
 namespace Authters\Chronicle\Stream;
 
+use Iterator;
+
 class Stream
 {
     /**
@@ -19,7 +21,7 @@ class Stream
      */
     protected $metadata = [];
 
-    public function __construct(StreamName $streamName, \Iterator $streamEvents, array $metadata = [])
+    public function __construct(StreamName $streamName, Iterator $streamEvents, array $metadata = [])
     {
         $this->streamName = $streamName;
         $this->streamEvents = $streamEvents;
@@ -31,7 +33,7 @@ class Stream
         return $this->streamName;
     }
 
-    public function streamEvents(): \Iterator
+    public function streamEvents(): Iterator
     {
         return $this->streamEvents;
     }

@@ -26,6 +26,7 @@ class OnRollbackEventDispatch extends AbstractSubscriber
         $this->eventBus = $eventBus;
         $this->cachedStreamEvents = $cachedStreamEvents;
     }
+
     public function applyTo(): callable
     {
         return function (ChroniclerActionEvent $event) {
