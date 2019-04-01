@@ -29,10 +29,9 @@ class ProjectionModelIntegrationTest extends IntegrationTestCase
     /**
      * @test
      */
-    public function it_create_projection_table(): void
+    public function it_create_projection(): void
     {
         $model = new Projection();
-
         $created = $model->newProjection('foo', ProjectionStatus::RUNNING);
 
         $this->assertTrue($created);
@@ -55,7 +54,6 @@ class ProjectionModelIntegrationTest extends IntegrationTestCase
     public function it_find_by_projection_name(): void
     {
         $model = new Projection();
-
         $model->newProjection('foo', ProjectionStatus::RUNNING);
         $projection = $model->findByName('foo');
 
