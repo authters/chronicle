@@ -179,6 +179,10 @@ abstract class PersistentProjectorLock
         ]);
     }
 
+    /**
+     * @param bool $deleteEmittedEvents
+     * @throws \Exception
+     */
     public function delete(bool $deleteEmittedEvents): void
     {
         $this->provider->deleteByName($this->name);
@@ -200,6 +204,9 @@ abstract class PersistentProjectorLock
         $this->context->streamPositions()->reset();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function reset(): void
     {
         $this->context->streamPositions()->reset();
@@ -245,5 +252,8 @@ abstract class PersistentProjectorLock
         );
     }
 
+    /**
+     * @throws \Exception
+     */
     abstract protected function deleteEmittedEvents(): void;
 }

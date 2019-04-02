@@ -24,9 +24,6 @@ final class ReadModelProjectorLock extends PersistentProjectorLock
         $this->readModel = $readModel;
     }
 
-    /**
-     * @throws \Exception
-     */
     public function persist(): void
     {
         $this->readModel->persist();

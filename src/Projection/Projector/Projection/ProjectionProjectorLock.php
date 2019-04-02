@@ -26,9 +26,6 @@ class ProjectionProjectorLock extends PersistentProjectorLock
         $this->chronicler = $chronicler;
     }
 
-    /**
-     * @throws \Exception
-     */
     public function reset(): void
     {
         parent::reset();
@@ -39,9 +36,6 @@ class ProjectionProjectorLock extends PersistentProjectorLock
         }
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function deleteEmittedEvents(): void
     {
         try {
