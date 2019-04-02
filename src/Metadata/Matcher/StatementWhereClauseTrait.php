@@ -17,7 +17,7 @@ trait StatementWhereClauseTrait
      */
     private $bindings = [];
 
-    public function __invoke(?MetadataMatcher $metadataMatcher): array
+    public function createWhereClauseStatement(?MetadataMatcher $metadataMatcher): array
     {
         if (!$metadataMatcher) {
             return [$this->wheres, $this->bindings];

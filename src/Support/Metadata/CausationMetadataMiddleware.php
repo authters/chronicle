@@ -33,6 +33,7 @@ class CausationMetadataMiddleware implements Middleware
 
         if ($message instanceof Message) {
             $commandAware = new CausationMetadataEnricher($message);
+
             $this->eventTracker->subscribe($this->getCreateSubscriber($commandAware));
             $this->eventTracker->subscribe($this->getAppendSubscriber($commandAware));
         }

@@ -4,7 +4,7 @@ namespace Authters\Chronicle\Support\Contracts\Projection\Model;
 
 use Illuminate\Support\Collection;
 
-// should not use collection here
+// checkMe use collection or array
 interface ProjectionProvider
 {
     public function newProjection(string $name, string $status): bool;

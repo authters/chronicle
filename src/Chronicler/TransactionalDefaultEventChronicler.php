@@ -6,8 +6,8 @@ use Authters\Chronicle\Chronicler\Events\Transaction\BeginTransaction;
 use Authters\Chronicle\Chronicler\Events\Transaction\CommitTransaction;
 use Authters\Chronicle\Chronicler\Events\Transaction\RollbackTransaction;
 use Authters\Chronicle\Chronicler\Tracker\TransactionalChroniclerActionEvent;
-use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalEventChronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalChronicler;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalEventChronicler;
 
 class TransactionalDefaultEventChronicler extends DefaultEventChronicler implements TransactionalEventChronicler
 {
@@ -23,7 +23,7 @@ class TransactionalDefaultEventChronicler extends DefaultEventChronicler impleme
 
         $this->tracker->emit($event);
 
-        if($exception = $event->transactionAlreadyStarted()){
+        if ($exception = $event->transactionAlreadyStarted()) {
             throw $exception;
         }
     }
@@ -35,7 +35,7 @@ class TransactionalDefaultEventChronicler extends DefaultEventChronicler impleme
 
         $this->tracker->emit($event);
 
-        if($exception = $event->transactionNotStarted()){
+        if ($exception = $event->transactionNotStarted()) {
             throw $exception;
         }
     }
@@ -47,7 +47,7 @@ class TransactionalDefaultEventChronicler extends DefaultEventChronicler impleme
 
         $this->tracker->emit($event);
 
-        if($exception = $event->transactionNotStarted()){
+        if ($exception = $event->transactionNotStarted()) {
             throw $exception;
         }
     }
