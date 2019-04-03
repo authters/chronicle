@@ -36,8 +36,6 @@ use Illuminate\Support\ServiceProvider;
 
 class EventTrackerServiceProvider extends ServiceProvider
 {
-    // fixMe transactional events
-
     public function register(): void
     {
         $eventChronicler = config('chronicle.chronicler.tracker');
@@ -113,6 +111,7 @@ class EventTrackerServiceProvider extends ServiceProvider
         OnRollbackTransaction::class,
     ];
 
+    // checkMe
     protected $transactionalEventSubscribers = [
         OnAppendToEventDispatch::class,
         OnCommitEventDispatch::class,

@@ -13,11 +13,10 @@ class OnfetchStreamNames extends AbstractSubscriber
     public function applyTo(): callable
     {
         return function (ChroniclerActionEvent $event) {
-            /** @var Chronicler $publiher */
-            $publisher = $event->currentEvent()->target();
+            /** @var Chronicler $chronicler */
+            $chronicler = $event->currentEvent()->target();
 
-
-            $streamNames = $publisher->fetchStreamNames(
+            $streamNames = $chronicler->fetchStreamNames(
                 $event->filter(),
                 $event->metadataMatcher(),
                 $event->count(),
