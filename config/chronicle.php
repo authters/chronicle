@@ -12,6 +12,14 @@ return [
                 'naming_strategy' => \Authters\Chronicle\Projection\Strategy\SingleStreamNamingStrategy::class,
                 'metadata_matchers' => \Authters\Chronicle\Support\Metadata\ConnectionMetadataMatchers::class
             ],
+
+            'postgres' => [
+                'chronicler' => \Authters\Chronicle\Chronicler\Connection\PostgresChronicler::class,
+                'persistence_strategy' => \Authters\Chronicle\Projection\Strategy\PostgresAggregateStreamStrategy::class,
+                'naming_strategy' => \Authters\Chronicle\Projection\Strategy\AggregateNamingStrategy::class,
+                'metadata_matchers' => null
+            ],
+
         ],
 
         'snapshot' => [
