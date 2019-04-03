@@ -40,7 +40,8 @@ class AggregateStreamStrategy implements PersistenceStrategy
             );
 
             $table->unique('event_id', 'ix_event_id');
-            $table->unique('_aggregate_version', 'ix_aggregate_version');
+            // fixMe
+            // $table->unique('_aggregate_version', 'ix_aggregate_version');
         };
     }
 

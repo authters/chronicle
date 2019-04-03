@@ -48,7 +48,7 @@ abstract class AbstractRepository
     public function __construct(Chronicler $chronicler,
                                 AggregateType $aggregateType,
                                 StreamNamingStrategy $namingStrategy,
-                                MetadataMatcherAggregate $metadataMatchers,
+                                MetadataMatcherAggregate $metadataMatchers = null,
                                 array $metadata = [])
     {
         $this->chronicler = $chronicler;

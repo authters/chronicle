@@ -6,6 +6,7 @@ use Authters\Chronicle\Aggregate\AggregateType;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcherAggregate;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\Chronicler;
+use Authters\Chronicle\Support\Contracts\Projection\Strategy\StreamNamingStrategy;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
@@ -45,13 +46,22 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
 
         $this->app->singleton($repositoryAlias,
             function (Application $app) use ($repository, $repositoryConcrete, $namingStrategy, $metadataMatchers) {
+                $streamName = new StreamName($repository['stream_name'] ?? null);
+
+                /** @var StreamNamingStrategy $namingStrategyInstance */
+                $namingStrategyInstance = new $namingStrategy($streamName);
+
+                if (!$namingStrategyInstance->isOneStreamPerAggregate() && !$metadataMatchers) {
+                    throw new RuntimeException(
+                        "Metadata matchers is mandatory combined with single stream naming strategy"
+                    );
+                }
+
                 return new $repositoryConcrete(
                     $app->get(Chronicler::class),
                     AggregateType::fromRootClass($repository['type']),
-                    new $namingStrategy(
-                        new StreamName($repository['stream_name'])
-                    ),
-                    $app->make($metadataMatchers)
+                    $namingStrategyInstance,
+                    $metadataMatchers ? $app->get($metadataMatchers) : null
                 );
             });
     }
@@ -67,9 +77,13 @@ class AggregateRepositoryServiceProvider extends ServiceProvider
         return $strategy;
     }
 
-    protected function determineMetadataMatchers(string $driver): string
+    protected function determineMetadataMatchers(string $driver): ?string
     {
         $metadataMatchers = $this->fromConfig("connections.chronicler.{$driver}.metadata_matchers");
+
+        if (!$metadataMatchers) {
+            return null;
+        }
 
         $concrete = $metadataMatchers;
         $alias = MetadataMatcherAggregate::class;

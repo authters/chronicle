@@ -329,6 +329,10 @@ class ConnectionChronicler implements TransactionalChronicler
         try {
             $result = (new QueryStreamBuilder($this->messageFactory, $builder, $limit))->chunk();
         } catch (QueryException $exception) {
+            if ($exception->getCode() !== '00000') {
+                throw StreamNotFound::with($streamName);
+            }
+
             throw QueryChroniclerError::fromQueryException($exception);
         }
 
