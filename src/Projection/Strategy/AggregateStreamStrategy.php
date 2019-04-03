@@ -11,7 +11,7 @@ use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageConverter;
 use Prooph\Common\Messaging\NoOpMessageConverter;
 
-class MysqlSingleStreamStrategy implements PersistenceStrategy
+class AggregateStreamStrategy implements PersistenceStrategy
 {
     /**
      * @var MessageConverter
@@ -35,19 +35,12 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
             $table->json('metadata');
             $table->json('payload');
             $table->dateTime('created_at', 6);
-            $table->integer('aggregate_version', false, true)->storedAs(
+            $table->integer('aggregate_version', false, 11)->storedAs(
                 'JSON_UNQUOTE(JSON_EXTRACT(metadata, \'$._aggregate_version\'))'
-            );
-            $table->uuid('aggregate_id')->storedAs(
-                'JSON_UNQUOTE(JSON_EXTRACT(metadata, \'$._aggregate_id\'))'
-            );
-            $table->string('aggregate_type', 150)->storedAs(
-                'JSON_UNQUOTE(JSON_EXTRACT(metadata, \'$._aggregate_type\'))'
             );
 
             $table->unique('event_id', 'ix_event_id');
-            $table->unique(['aggregate_id', 'aggregate_version', 'aggregate_type'], 'ix_unique_event');
-            $table->index(['aggregate_type', 'aggregate_id', 'no'], 'ix_query_aggregate');
+            $table->unique('_aggregate_version', 'ix_aggregate_version');
         };
     }
 
@@ -86,11 +79,6 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
     public function generateTableName(StreamName $streamName): string
     {
         return '_' . \sha1($streamName->toString());
-    }
-
-    public function indexName(): string
-    {
-        return 'ix_query_aggregate';
     }
 
     protected function formatDateTime(\DateTimeImmutable $createdAt): string

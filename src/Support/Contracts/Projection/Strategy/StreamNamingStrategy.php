@@ -11,6 +11,4 @@ interface StreamNamingStrategy
     public function determineStreamName(string $aggregateId, string $aggregateType): StreamName;
 
     public function isOneStreamPerAggregate(): bool;
-
-    public function streamName(): ?StreamName;
 }

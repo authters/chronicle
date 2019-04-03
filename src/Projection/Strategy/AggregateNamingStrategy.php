@@ -5,7 +5,7 @@ namespace Authters\Chronicle\Projection\Strategy;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\StreamNamingStrategy;
 
-class SingleStreamNamingStrategy implements StreamNamingStrategy
+class AggregateNamingStrategy implements StreamNamingStrategy
 {
     /**
      * @var StreamName
@@ -19,15 +19,13 @@ class SingleStreamNamingStrategy implements StreamNamingStrategy
 
     public function determineStreamName(string $aggregateId, string $aggregateType): StreamName
     {
-        if (!$this->streamName) {
-            return new StreamName(self::DEFAULT_EVENT_STREAM_NAME);
-        }
+        $prefix = $this->streamName ? $this->streamName->toString() : $aggregateType;
 
-        return $this->streamName;
+        return new StreamName($prefix . '_' . $aggregateId);
     }
 
     public function isOneStreamPerAggregate(): bool
     {
-        return false;
+        return true;
     }
 }
