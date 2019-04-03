@@ -11,12 +11,11 @@ use Authters\Chronicle\Stream\Stream;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Connection\HasConnectionTransaction;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;
-use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalChronicler;
+use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\PersistenceStrategy;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\QueryHint;
 use Authters\Chronicle\Support\Json;
-use Authters\Chronicle\Support\Projection\InternalProjectionName;
 use Illuminate\Database\Connection;
 use Illuminate\Database\QueryException;
 use Prooph\Common\Messaging\MessageFactory;
@@ -240,8 +239,9 @@ class ConnectionChronicler implements TransactionalChronicler
     protected function addStreamToStreamsTable(Stream $stream): void
     {
         $realStreamName = $stream->streamName()->toString();
-        $category = InternalProjectionName::fromCategory($stream->streamName());
-        $categoryName = $category->isValid() ? $category->toString() : null;
+
+        $pos = \strpos($realStreamName, '-');
+        $category = (false !== $pos && $pos > 0) ? \substr($realStreamName, 0, $pos) : null;
 
         $streamName = $this->persistenceStrategy->generateTableName($stream->streamName());
         $metadata = Json::encode($stream->metadata());
@@ -251,7 +251,7 @@ class ConnectionChronicler implements TransactionalChronicler
                 'real_stream_name' => $realStreamName,
                 'stream_name' => $streamName,
                 'metadata' => $metadata,
-                'category' => $categoryName
+                'category' => $category
             ]);
         } catch (QueryException $exception) {
             if ($exception->getCode() === '23000') {

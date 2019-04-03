@@ -231,21 +231,21 @@ abstract class ProjectorContext
         return $this->handlers;
     }
 
-    public function setFrom(string $key, array $streamNames = []): void
+    public function setFrom(string $key, array $names = []): void
     {
         if (null !== $this->query) {
             throw new RuntimeException('Projection streams already set');
         }
 
         if (!in_array($key, ['streams', 'categories', 'all'])) {
-            throw new RuntimeException('Item not Available');
+            throw new RuntimeException("Invalid item from {$key}");
         }
 
         if ('all' === $key) {
             $this->query['all'] = true;
         } else {
-            foreach ($streamNames as $streamName) {
-                $this->query[$key][] = $streamName;
+            foreach ($names as $name) {
+                $this->query[$key][] = $name;
             }
         }
     }

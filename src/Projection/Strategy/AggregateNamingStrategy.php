@@ -21,7 +21,7 @@ class AggregateNamingStrategy implements StreamNamingStrategy
     {
         $prefix = $this->streamName ? $this->streamName->toString() : $aggregateType;
 
-        return new StreamName($prefix . '_' . $aggregateId);
+        return new StreamName($prefix . '-' . $aggregateId);
     }
 
     public function isOneStreamPerAggregate(): bool

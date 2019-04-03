@@ -4,6 +4,7 @@ namespace Authters\Chronicle\Support\Console\Standard;
 
 use Authters\Chronicle\Support\Projection\InternalProjectionName;
 use Exception;
+use Prooph\Common\Messaging\Message;
 
 class CategoryStreamProjectionRunner extends StreamProjectionRunner
 {
@@ -26,11 +27,13 @@ class CategoryStreamProjectionRunner extends StreamProjectionRunner
             ->createProjection('$by_category')
             ->fromAll()
             ->whenAny(function (array $state, Message $event): void {
-                $category = InternalProjectionName::fromCategory(
-                    $this->streamName()
-                );
-                if ($category->isValid()) {
-                    $this->linkTo($category, $event);
+                if($this->streamName()){
+                    $category = InternalProjectionName::fromCategory(
+                        $this->streamName()
+                    );
+                    if ($category->isValid()) {
+                        $this->linkTo($category, $event);
+                    }
                 }
             })
             ->run($this->keepRunning());

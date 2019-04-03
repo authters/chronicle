@@ -11,7 +11,7 @@ use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageConverter;
 use Prooph\Common\Messaging\NoOpMessageConverter;
 
-class AggregateStreamStrategy implements PersistenceStrategy
+class MysqlAggregateStreamStrategy implements PersistenceStrategy
 {
     /**
      * @var MessageConverter
