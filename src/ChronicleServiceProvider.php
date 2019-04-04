@@ -31,9 +31,10 @@ class ChronicleServiceProvider extends AggregateServiceProvider
             'config'
         );
 
-        // fixMe
         $driver = config('chronicle.chronicler.default');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/' . $driver);
+        if(is_string($driver)){
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/' . $driver);
+        }
     }
 
     protected function mergeConfig(): void

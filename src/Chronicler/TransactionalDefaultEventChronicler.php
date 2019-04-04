@@ -14,12 +14,12 @@ class TransactionalDefaultEventChronicler extends DefaultEventChronicler impleme
     /**
      * @var TransactionalChronicler
      */
-    protected $publisher;
+    protected $chronicler;
 
     public function beginTransaction(): void
     {
         /** @var TransactionalChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new BeginTransaction($this->publisher));
+        $event = $this->tracker->newActionEvent(new BeginTransaction($this->chronicler));
 
         $this->tracker->emit($event);
 
@@ -31,7 +31,7 @@ class TransactionalDefaultEventChronicler extends DefaultEventChronicler impleme
     public function commitTransaction(): void
     {
         /** @var TransactionalChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new CommitTransaction($this->publisher));
+        $event = $this->tracker->newActionEvent(new CommitTransaction($this->chronicler));
 
         $this->tracker->emit($event);
 
@@ -43,7 +43,7 @@ class TransactionalDefaultEventChronicler extends DefaultEventChronicler impleme
     public function rollbackTransaction(int $toLevel = null): void
     {
         /** @var TransactionalChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new RollbackTransaction($this->publisher));
+        $event = $this->tracker->newActionEvent(new RollbackTransaction($this->chronicler));
 
         $this->tracker->emit($event);
 
@@ -54,6 +54,6 @@ class TransactionalDefaultEventChronicler extends DefaultEventChronicler impleme
 
     public function inTransaction(): bool
     {
-        return $this->publisher->inTransaction();
+        return $this->chronicler->inTransaction();
     }
 }

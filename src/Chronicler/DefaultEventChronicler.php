@@ -26,7 +26,7 @@ class DefaultEventChronicler implements EventChronicler
     /**
      * @var Chronicler
      */
-    protected $publisher;
+    protected $chronicler;
 
     /**
      * @var EventTracker
@@ -35,14 +35,14 @@ class DefaultEventChronicler implements EventChronicler
 
     public function __construct(Chronicler $publisher, EventTracker $tracker)
     {
-        $this->publisher = $publisher;
+        $this->chronicler = $publisher;
         $this->tracker = $tracker;
     }
 
     public function create(Stream $stream): void
     {
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new CreateEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new CreateEvent($this->chronicler));
 
         $event->setStream($stream);
 
@@ -56,7 +56,7 @@ class DefaultEventChronicler implements EventChronicler
     public function appendTo(StreamName $streamName, \Iterator $streamEvents): void
     {
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new AppendToEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new AppendToEvent($this->chronicler));
         $event->setStreamName($streamName);
         $event->setStreamEvents($streamEvents);
 
@@ -74,7 +74,7 @@ class DefaultEventChronicler implements EventChronicler
     public function delete(StreamName $streamName): void
     {
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new DeleteEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new DeleteEvent($this->chronicler));
         $event->setStreamName($streamName);
 
         $this->tracker->emit($event);
@@ -87,7 +87,7 @@ class DefaultEventChronicler implements EventChronicler
     public function updateStreamMetadata(StreamName $streamName, array $newMetadata): void
     {
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new UpdateStreamMetadataEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new UpdateStreamMetadataEvent($this->chronicler));
         $event->setStreamName($streamName);
         $event->setMetadata($newMetadata);
 
@@ -112,7 +112,7 @@ class DefaultEventChronicler implements EventChronicler
         }
 
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new LoadEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new LoadEvent($this->chronicler));
 
         $event->setStreamName($streamName);
         $event->setCount($count);
@@ -148,7 +148,7 @@ class DefaultEventChronicler implements EventChronicler
         }
 
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new LoadReverseEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new LoadReverseEvent($this->chronicler));
 
         $event->setStreamName($streamName);
         $event->setCount($count);
@@ -173,7 +173,7 @@ class DefaultEventChronicler implements EventChronicler
     public function hasStream(StreamName $streamName): bool
     {
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new HasStreamEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new HasStreamEvent($this->chronicler));
         $event->setStreamName($streamName);
 
         $this->tracker->emit($event);
@@ -187,7 +187,7 @@ class DefaultEventChronicler implements EventChronicler
                                      int $offset = 0): array
     {
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new FetchStreamNamesEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new FetchStreamNamesEvent($this->chronicler));
         $event->setFilter($filter);
         $event->setMetadataMatcher($metadataMatcher);
         $event->setCount($limit);
@@ -204,7 +204,7 @@ class DefaultEventChronicler implements EventChronicler
                                        int $offset = 0): array
     {
         /** @var ChroniclerActionEvent $event */
-        $event = $this->tracker->newActionEvent(new FetchCategoryNamesEvent($this->publisher));
+        $event = $this->tracker->newActionEvent(new FetchCategoryNamesEvent($this->chronicler));
         $event->setFilter($filter);
         $event->setMetadataMatcher($metadataMatcher);
         $event->setCount($limit);
@@ -217,6 +217,6 @@ class DefaultEventChronicler implements EventChronicler
 
     public function getInnerChronicler(): Chronicler
     {
-        return $this->publisher;
+        return $this->chronicler;
     }
 }
