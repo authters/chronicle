@@ -13,14 +13,7 @@ return [
                 'metadata_matchers' => \Authters\Chronicle\Support\Metadata\ConnectionMetadataMatchers::class
             ],
 
-            'mysql_aggregate' => [
-                'chronicler' => \Authters\Chronicle\Chronicler\Connection\MysqlChronicler::class,
-                'persistence_strategy' => \Authters\Chronicle\Chronicler\Strategy\MysqlAggregateStreamStrategy::class,
-                'naming_strategy' => \Authters\Chronicle\Chronicler\Strategy\AggregateNamingStrategy::class,
-                'metadata_matchers' => null
-            ],
-
-            'postgres_aggregate' => [
+            'postgres' => [
                 'chronicler' => \Authters\Chronicle\Chronicler\Connection\PostgresChronicler::class,
                 'persistence_strategy' => \Authters\Chronicle\Chronicler\Strategy\PostgresAggregateStreamStrategy::class,
                 'naming_strategy' => \Authters\Chronicle\Chronicler\Strategy\AggregateNamingStrategy::class,
