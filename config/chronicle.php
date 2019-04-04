@@ -8,18 +8,24 @@ return [
 
             'mysql' => [
                 'chronicler' => \Authters\Chronicle\Chronicler\Connection\MysqlChronicler::class,
-                'persistence_strategy' => \Authters\Chronicle\Projection\Strategy\MysqlSingleStreamStrategy::class,
-                'naming_strategy' => \Authters\Chronicle\Projection\Strategy\SingleStreamNamingStrategy::class,
+                'persistence_strategy' => \Authters\Chronicle\Chronicler\Strategy\MysqlSingleStreamStrategy::class,
+                'naming_strategy' => \Authters\Chronicle\Chronicler\Strategy\SingleStreamNamingStrategy::class,
                 'metadata_matchers' => \Authters\Chronicle\Support\Metadata\ConnectionMetadataMatchers::class
             ],
 
-            'postgres' => [
-                'chronicler' => \Authters\Chronicle\Chronicler\Connection\PostgresChronicler::class,
-                'persistence_strategy' => \Authters\Chronicle\Projection\Strategy\PostgresAggregateStreamStrategy::class,
-                'naming_strategy' => \Authters\Chronicle\Projection\Strategy\AggregateNamingStrategy::class,
+            'mysql_aggregate' => [
+                'chronicler' => \Authters\Chronicle\Chronicler\Connection\MysqlChronicler::class,
+                'persistence_strategy' => \Authters\Chronicle\Chronicler\Strategy\MysqlAggregateStreamStrategy::class,
+                'naming_strategy' => \Authters\Chronicle\Chronicler\Strategy\AggregateNamingStrategy::class,
                 'metadata_matchers' => null
             ],
 
+            'postgres_aggregate' => [
+                'chronicler' => \Authters\Chronicle\Chronicler\Connection\PostgresChronicler::class,
+                'persistence_strategy' => \Authters\Chronicle\Chronicler\Strategy\PostgresAggregateStreamStrategy::class,
+                'naming_strategy' => \Authters\Chronicle\Chronicler\Strategy\AggregateNamingStrategy::class,
+                'metadata_matchers' => null
+            ],
         ],
 
         'snapshot' => [

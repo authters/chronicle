@@ -1,7 +1,8 @@
 <?php
 
-namespace Authters\Chronicle\Projection\Strategy;
+namespace Authters\Chronicle\Chronicler\Strategy;
 
+use Authters\Chronicle\Exceptions\RuntimeException;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\PersistenceStrategy;
 use Authters\Chronicle\Support\Json;
@@ -11,7 +12,7 @@ use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageConverter;
 use Prooph\Common\Messaging\NoOpMessageConverter;
 
-class MysqlSingleStreamStrategy implements PersistenceStrategy
+class PostgresAggregateStreamStrategy implements PersistenceStrategy
 {
     /**
      * @var MessageConverter
@@ -32,22 +33,15 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
             $table->bigInteger('no', true);
             $table->uuid('event_id');
             $table->string('event_name', 100);
-            $table->json('metadata');
-            $table->json('payload');
+            $table->jsonb('metadata');
+            $table->jsonb('payload');
             $table->dateTime('created_at', 6);
-            $table->integer('aggregate_version', false, true)->storedAs(
+            $table->integer('aggregate_version', false)->storedAs(
                 'JSON_UNQUOTE(JSON_EXTRACT(metadata, \'$._aggregate_version\'))'
             );
-            $table->uuid('aggregate_id')->storedAs(
-                'JSON_UNQUOTE(JSON_EXTRACT(metadata, \'$._aggregate_id\'))'
-            );
-            $table->string('aggregate_type', 150)->storedAs(
-                'JSON_UNQUOTE(JSON_EXTRACT(metadata, \'$._aggregate_type\'))'
-            );
-
-            $table->unique('event_id', 'ix_event_id');
-            $table->unique(['aggregate_id', 'aggregate_version', 'aggregate_type'], 'ix_unique_event');
-            $table->index(['aggregate_type', 'aggregate_id', 'no'], 'ix_query_aggregate');
+            // fixMe
+            //$table->unique('event_id', 'ix_event_id');
+            // $table->unique('_aggregate_version', 'ix_aggregate_version');
         };
     }
 
@@ -58,6 +52,7 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
             'event_name',
             'payload',
             'metadata',
+            'aggregate_version',
             'created_at',
         ];
     }
@@ -73,24 +68,25 @@ class MysqlSingleStreamStrategy implements PersistenceStrategy
         return $eventCollection->transform(function (Message $event) {
             $data = $this->messageConverter->convertToArray($event);
 
+            if (null === ($data['metadata']['_aggregate_version'] ?? null)) {
+                throw new RuntimeException("_aggregate_version key missing in metadata");
+            }
+
             return array_combine($this->columnNames(), [
                 'uuid' => $data['uuid'],
                 'message_name' => $data['message_name'],
                 'payload' => Json::encode($data['payload']),
                 'metadata' => Json::encode($data['metadata']),
-                'created_at' => $this->formatDateTime($data['created_at'])
+                'aggregate_version' => $data['metadata']['_aggregate_version'],
+                'created_at' => $this->formatDateTime($data['created_at']),
             ]);
         })->toArray();
     }
 
+    // fixme add schema
     public function generateTableName(StreamName $streamName): string
     {
         return '_' . \sha1($streamName->toString());
-    }
-
-    public function indexName(): string
-    {
-        return 'ix_query_aggregate';
     }
 
     protected function formatDateTime(\DateTimeImmutable $createdAt): string

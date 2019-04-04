@@ -1,6 +1,6 @@
 <?php
 
-namespace Authters\Chronicle\Projection\Strategy;
+namespace Authters\Chronicle\Chronicler\Strategy;
 
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\PersistenceStrategy;
