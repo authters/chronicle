@@ -11,15 +11,15 @@ use Authters\Chronicle\Stream\Stream;
 use Authters\Chronicle\Stream\StreamName;
 use Authters\Chronicle\Support\Connection\HasConnectionTransaction;
 use Authters\Chronicle\Support\Contracts\Metadata\MetadataMatcher;
+use Authters\Chronicle\Support\Contracts\Projection\Chronicler\TransactionalChronicler;
 use Authters\Chronicle\Support\Contracts\Projection\Model\EventStreamProvider;
 use Authters\Chronicle\Support\Contracts\Projection\Strategy\PersistenceStrategy;
-use Authters\Chronicle\Support\Contracts\Projection\Strategy\QueryHint;
 use Authters\Chronicle\Support\Json;
 use Illuminate\Database\Connection;
 use Illuminate\Database\QueryException;
 use Prooph\Common\Messaging\MessageFactory;
 
-class PostgresChronicler
+class PostgresChronicler implements TransactionalChronicler
 {
     use HasConnectionTransaction;
 
@@ -143,7 +143,7 @@ class PostgresChronicler
         }
 
         if (1 !== $result) {
-            throw  StreamNotFound::with($streamName);
+            throw StreamNotFound::with($streamName);
         }
     }
 
@@ -207,7 +207,7 @@ class PostgresChronicler
                 'category' => $category
             ]);
         } catch (QueryException $exception) {
-            if ($exception->getCode() === '23000') {
+            if (\in_array($exception->getCode(), ['23000', '235050'], true)) {
                 throw StreamAlreadyExists::with($stream->streamName());
             }
 
@@ -221,10 +221,14 @@ class PostgresChronicler
 
     protected function removeStreamFromEventStreamTable(StreamName $streamName): void
     {
+        $result = null;
         try {
             $result = $this->eventStreamProvider->deleteRealStreamName($streamName->toString());
         } catch (QueryException $exception) {
-            throw QueryChroniclerError::fromQueryException($exception);
+            // checkMe
+            if($exception->getCode() !== '00000'){
+                throw QueryChroniclerError::fromQueryException($exception);
+            }
         }
 
         if (1 !== $result) {
@@ -251,15 +255,11 @@ class PostgresChronicler
     {
         $tableName = $this->persistenceStrategy->generateTableName($streamName);
 
-        $queryHint = null;
-        if ($this->persistenceStrategy instanceof QueryHint) {
-            $index = $this->persistenceStrategy->indexName();
-            $queryHint = " USE INDEX($index)";
+        if (!$this->eventStreamProvider->hasRealStreamName($tableName)) {
+            throw StreamNotFound::with($streamName);
         }
 
-        $builder = $this->connection->table(
-            $this->connection->raw($tableName . $queryHint)
-        );
+        $builder = $this->connection->table($tableName);
 
         $operator = $orderByDesc ? '<=' : '>=';
         $builder->where('no', $operator, $fromNumber);
@@ -282,6 +282,10 @@ class PostgresChronicler
         try {
             $result = (new QueryStreamBuilder($this->messageFactory, $builder, $limit))->chunk();
         } catch (QueryException $exception) {
+            if ($exception->getCode() === '42703') {
+                throw QueryChroniclerError::fromQueryException($exception);
+            }
+
             if ($exception->getCode() !== '00000') {
                 throw StreamNotFound::with($streamName);
             }
@@ -289,8 +293,7 @@ class PostgresChronicler
             throw QueryChroniclerError::fromQueryException($exception);
         }
 
-        //fixMe
-        if (!$result || 0 === iterator_count($result)) {
+        if (0 === iterator_count($result)) {
             throw StreamNotFound::with($streamName);
         }
 

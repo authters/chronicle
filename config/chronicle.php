@@ -7,7 +7,7 @@ return [
         'chronicler' => [
 
             'mysql' => [
-                'chronicler' => \Authters\Chronicle\Chronicler\Connection\ConnectionChronicler::class,
+                'chronicler' => \Authters\Chronicle\Chronicler\Connection\MysqlChronicler::class,
                 'persistence_strategy' => \Authters\Chronicle\Projection\Strategy\MysqlSingleStreamStrategy::class,
                 'naming_strategy' => \Authters\Chronicle\Projection\Strategy\SingleStreamNamingStrategy::class,
                 'metadata_matchers' => \Authters\Chronicle\Support\Metadata\ConnectionMetadataMatchers::class

@@ -20,7 +20,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\QueryException;
 use Prooph\Common\Messaging\MessageFactory;
 
-class ConnectionChronicler implements TransactionalChronicler
+class MysqlChronicler implements TransactionalChronicler
 {
     use HasConnectionTransaction;
 
@@ -329,6 +329,10 @@ class ConnectionChronicler implements TransactionalChronicler
         try {
             $result = (new QueryStreamBuilder($this->messageFactory, $builder, $limit))->chunk();
         } catch (QueryException $exception) {
+            if($exception->getCode() === '42S22'){
+                throw QueryChroniclerError::fromQueryException($exception);
+            }
+
             if ($exception->getCode() !== '00000') {
                 throw StreamNotFound::with($streamName);
             }
@@ -336,8 +340,7 @@ class ConnectionChronicler implements TransactionalChronicler
             throw QueryChroniclerError::fromQueryException($exception);
         }
 
-        //fixMe
-        if (!$result || 0 === iterator_count($result)) {
+        if (0 === iterator_count($result)) {
             throw StreamNotFound::with($streamName);
         }
 
