@@ -255,7 +255,7 @@ class PostgresChronicler implements TransactionalChronicler
     {
         $tableName = $this->persistenceStrategy->generateTableName($streamName);
 
-        if (!$this->eventStreamProvider->hasRealStreamName($tableName)) {
+        if (!$this->eventStreamProvider->hasRealStreamName($streamName)) {
             throw StreamNotFound::with($streamName);
         }
 
