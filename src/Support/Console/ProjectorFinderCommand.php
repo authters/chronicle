@@ -53,7 +53,7 @@ class ProjectorFinderCommand extends Command
         switch ($fieldName) {
             case 'state':
                 return $this->projectionManager->stateOf($streamName);
-            case  'positions':
+            case 'positions':
                 return $this->projectionManager->streamPositionsOf($streamName);
             case 'status':
                 return [$this->projectionManager->statusOf($streamName)];

@@ -32,7 +32,7 @@ class ChronicleServiceProvider extends AggregateServiceProvider
         );
 
         $driver = config('chronicle.chronicler.default');
-        if(is_string($driver)){
+        if (is_string($driver)) {
             $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/' . $driver);
         }
     }

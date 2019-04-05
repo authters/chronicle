@@ -15,7 +15,6 @@ class CreateProjections extends Migration
             $table->jsonb('state');
             $table->string('status', 28);
             $table->char('locked_until', 26)->nullable();
-
         });
     }
 

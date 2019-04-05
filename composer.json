@@ -15,7 +15,8 @@
     "authters/tracker": "dev-master",
     "prooph/common": "^4.3",
     "beberlei/assert": "^3.0.0",
-    "marc-mabe/php-enum": "^3.1"
+    "marc-mabe/php-enum": "^3.1",
+    "ext-json": "*"
   },
   "require-dev": {
     "laravel/framework": "^5.7",
